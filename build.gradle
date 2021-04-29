@@ -1,0 +1,22 @@
+plugins {
+    id 'java'
+}
+
+group 'com.GlacierGames'
+version '1.0-SNAPSHOT'
+
+//mainClassName = 'Main.DiscordBot'
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    implementation 'net.dv8tion:JDA:4.2.0_247'
+    compile group: 'com.google.guava', name: 'guava', version: '30.0-jre'
+}
+
+test {
+    useJUnitPlatform()
+}
