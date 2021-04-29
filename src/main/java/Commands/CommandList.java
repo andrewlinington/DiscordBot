@@ -1,8 +1,6 @@
 package Commands;
 
-import Commands.SH.SecretHitlerJoin;
-import Commands.SH.SecretHitlerLeave;
-import Commands.SH.SecretHitlerLobby;
+import Commands.SH.*;
 
 import java.util.ArrayList;
 
@@ -21,6 +19,9 @@ public final class CommandList {
         commands.add(new SecretHitlerLeave("!leave"));
         commands.add(new SecretHitlerLobby("!show"));
         commands.add(new SecretHitlerLobby("!lobby"));
+        commands.add(new SecretHitlerStart("!start"));
+        commands.add(new SecretHitlerElection("!elect"));
+
     }
 
     public static ArrayList<Command> getCommands() {

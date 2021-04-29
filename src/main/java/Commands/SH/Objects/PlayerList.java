@@ -1,4 +1,4 @@
-package Commands.SH;
+package Commands.SH.Objects;
 
 import java.util.ArrayList;
 
@@ -21,6 +21,15 @@ public final class PlayerList {
     public static void removePlayer(Player player){
         players.remove(player);
         playerCount--;
+    }
+
+    public static Player findPlayer (String id){
+        for (Player p: players) {
+            if(p.hasID(id)) {
+                return p;
+            }
+        }
+        return null;
     }
 
     public static ArrayList<Player> getPlayers () {

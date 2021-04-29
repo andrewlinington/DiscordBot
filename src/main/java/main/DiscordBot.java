@@ -20,6 +20,10 @@ public class DiscordBot  {
 
 
     public static JDA API;
+//    //actual server emotes
+//    public static final long YEET_EMOTE = 837444097894645781L;
+    public static final long YEET_EMOTE = 837445794956574761L;
+    public static final long YEETNT_EMOTE = 837456729734250537L;
 
     public static void main(String[] args) {
         try {

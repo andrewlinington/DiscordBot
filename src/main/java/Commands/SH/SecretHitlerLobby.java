@@ -1,6 +1,8 @@
 package Commands.SH;
 
 import Commands.Command;
+import Commands.SH.Objects.Player;
+import Commands.SH.Objects.PlayerList;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 

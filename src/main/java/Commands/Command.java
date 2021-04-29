@@ -16,7 +16,7 @@ public abstract class Command {
         return string.equals(getKey());
     }
 
-    private String getKey () {
+    public String getKey () {
         return key;
     }
 
