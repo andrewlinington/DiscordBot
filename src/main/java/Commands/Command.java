@@ -13,7 +13,7 @@ public abstract class Command {
 
 
     public boolean keyMatches(String string) {
-        return string.startsWith(getKey());
+        return string.equals(getKey());
     }
 
     private String getKey () {

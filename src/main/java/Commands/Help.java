@@ -15,10 +15,11 @@ public class Help extends Command {
     public void start(MessageReceivedEvent event) {
         EmbedBuilder eb = new EmbedBuilder();
         eb.setTitle("Bot Commands:");
-//        eb.setThumbnail("https://picsum.photos/seed/picsum/200/300");
         eb.setColor(Color.GREEN);
         eb.addField("Call for help",                          "!help",false);
-        eb.addField("Join the Lobby",                         "!SH Join",false);
+        eb.addField("Join the Lobby",                         "!join",false);
+        eb.addField("Leave the Lobby",                        "!leave", false);
+        eb.addField("Show the Lobby",                         "!show or !lobby",false);
         event.getChannel().sendMessage(eb.build()).queue();
     }
 }

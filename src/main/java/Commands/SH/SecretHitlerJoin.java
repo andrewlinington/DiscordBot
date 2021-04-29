@@ -4,7 +4,7 @@ import Commands.Command;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.awt.*;
+import java.util.ArrayList;
 
 public class SecretHitlerJoin extends Command {
     public SecretHitlerJoin(String s) {
@@ -13,12 +13,30 @@ public class SecretHitlerJoin extends Command {
 
     @Override
     public void start(MessageReceivedEvent event) {
-        EmbedBuilder eb = new EmbedBuilder();
         String name = event.getAuthor().getName();
-        PlayerList.addPlayer(new Player(name));
-        eb.setTitle("Secret Hitler Lobby 1/10");
-        eb.setColor(Color.RED);
-
+        String id = event.getMessage().getAuthor().getId();
+        ArrayList<Player> players = PlayerList.getPlayers();
+        for (Player p: players){
+            if (p.hasID(id)) {
+                EmbedBuilder eb = new EmbedBuilder();
+                eb.setTitle("You have already Joined");
+                event.getChannel().sendMessage(eb.build()).queue();
+                SecretHitlerLobby.showLobby(event);
+                return;
+            }
+        }
+        if(PlayerList.getPlayerCount() < 10) {
+            PlayerList.addPlayer(new Player(name, id));
+            EmbedBuilder eb = new EmbedBuilder();
+            eb.setTitle(name + " has joined the lobby.");
+            event.getChannel().sendMessage(eb.build()).queue();
+        }
+        else {
+            EmbedBuilder eb = new EmbedBuilder();
+            eb.setTitle("Maximum number of players reached.");
+            event.getChannel().sendMessage(eb.build()).queue();
+        }
+        SecretHitlerLobby.showLobby(event);
     }
 
 
