@@ -6,7 +6,7 @@ public final class PlayerList {
     private PlayerList() {}
 
     private static int playerCount;
-    private static ArrayList<Player> players;
+    private static final ArrayList<Player> players;
 
     static {
         players = new ArrayList<>();

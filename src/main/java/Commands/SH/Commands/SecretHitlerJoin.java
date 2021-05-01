@@ -10,8 +10,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.ArrayList;
 
 public class SecretHitlerJoin extends Command {
-    public SecretHitlerJoin(String s) {
-        super(s);
+    public SecretHitlerJoin(String key, String desc) {
+        super(key,desc);
     }
 
     @Override

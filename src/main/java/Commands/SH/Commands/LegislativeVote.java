@@ -4,8 +4,8 @@ import Commands.Command;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class LegislativeVote extends Command {
-    public LegislativeVote(String key) {
-        super(key);
+    public LegislativeVote(String key, String desc) {
+        super(key, desc);
     }
 
     @Override

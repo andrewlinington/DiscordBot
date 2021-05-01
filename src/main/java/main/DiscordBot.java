@@ -1,6 +1,6 @@
 package main;
 
-import eventListeners.EventListeners;
+import main.eventListeners.EventListeners;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;

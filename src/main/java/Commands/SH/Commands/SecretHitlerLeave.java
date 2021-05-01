@@ -9,8 +9,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.ArrayList;
 
 public class SecretHitlerLeave  extends Command {
-    public SecretHitlerLeave(String key) {
-        super(key);
+    public SecretHitlerLeave(String key, String desc) {
+        super(key,desc);
     }
 
     @Override

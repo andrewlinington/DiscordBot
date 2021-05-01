@@ -2,6 +2,7 @@ package Commands.SH.utils;
 
 import Commands.SH.Commands.SecretHitlerLobby;
 import Commands.SH.utils.enums.GameStage;
+import Commands.SH.utils.enums.SecretHitlerStatus;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -17,6 +18,8 @@ public class Gamestate {
     private static GameStage gameStage = GameStage.Idle;
     private static ArrayList<Player> players;
 
+
+    //the locations of important navigation locations
     private static int presidentLocation;
     private static int nextLocation;
     private static int chancellorLocation;

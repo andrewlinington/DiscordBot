@@ -4,6 +4,7 @@ import Commands.Command;
 import Commands.SH.utils.*;
 import Commands.SH.utils.enums.GameStage;
 import Commands.SH.utils.enums.RoleType;
+import Commands.SH.utils.enums.SecretHitlerStatus;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -15,8 +16,8 @@ import java.util.Random;
 public class SecretHitlerStart extends Command {
     Random rand;
 
-    public SecretHitlerStart(String s) {
-        super(s);
+    public SecretHitlerStart(String key, String desc) {
+        super(key, desc);
     }
 
     @Override

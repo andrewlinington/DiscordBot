@@ -11,8 +11,9 @@ import java.awt.*;
 import java.util.ArrayList;
 
 public class SecretHitlerLobby extends Command {
-    public SecretHitlerLobby(String key) {
-        super(key);
+
+    public SecretHitlerLobby(String key, String desc) {
+        super(key, desc);
     }
 
     @Override

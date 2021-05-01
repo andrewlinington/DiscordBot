@@ -6,8 +6,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.awt.*;
 
 public class PrivateHelp extends Command {
-    public PrivateHelp(String key) {
-        super(key);
+    public PrivateHelp(String key, String desc) {
+        super(key,desc);
     }
 
     @Override

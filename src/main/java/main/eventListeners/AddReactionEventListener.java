@@ -1,9 +1,9 @@
-package eventListeners;
+package main.eventListeners;
 
 import Commands.SH.utils.Gamestate;
 import Commands.SH.utils.enums.GameStage;
 import Commands.SH.utils.Player;
-import Commands.SH.utils.SecretHitlerStatus;
+import Commands.SH.utils.enums.SecretHitlerStatus;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;

@@ -4,7 +4,7 @@ import Commands.Command;
 import Commands.SH.utils.enums.GameStage;
 import Commands.SH.utils.Gamestate;
 import Commands.SH.utils.Player;
-import Commands.SH.utils.SecretHitlerStatus;
+import Commands.SH.utils.enums.SecretHitlerStatus;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -16,8 +16,8 @@ import static main.DiscordBot.YEET_EMOTE;
 
 public class SecretHitlerElection extends Command {
 
-    public SecretHitlerElection(String key) {
-        super(key);
+    public SecretHitlerElection(String key, String desc) {
+        super(key, desc);
     }
 
     @Override

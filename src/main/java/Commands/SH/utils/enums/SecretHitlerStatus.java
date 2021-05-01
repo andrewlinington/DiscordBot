@@ -1,4 +1,4 @@
-package Commands.SH.utils;
+package Commands.SH.utils.enums;
 
 /**
  * The States a player can be in for the Secret Hitler lobby

@@ -1,4 +1,4 @@
-package eventListeners;
+package main.eventListeners;
 
 import com.google.common.collect.ImmutableList;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;

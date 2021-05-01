@@ -1,8 +1,7 @@
-package eventListeners;
+package main.eventListeners;
 
-import Commands.CommandList;
 import Commands.Command;
-import Commands.PrivateCommandList;
+import Commands.CommandList;
 import main.DiscordBot;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -28,7 +27,7 @@ public class CommandEventListener extends ListenerAdapter {
                     }
                 }
             } else if  (event.isFromType(ChannelType.PRIVATE)) {
-                for (Command c : PrivateCommandList.getCommands()) {
+                for (Command c : CommandList.getPrivateCommands()) {
                     if (c.keyMatches(messageContent)) {
                         c.start(event);
                         return;

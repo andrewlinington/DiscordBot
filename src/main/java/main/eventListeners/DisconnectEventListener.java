@@ -1,4 +1,4 @@
-package eventListeners;
+package main.eventListeners;
 
 import net.dv8tion.jda.api.events.DisconnectEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
