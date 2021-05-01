@@ -2,6 +2,7 @@ package eventListeners;
 
 import Commands.CommandList;
 import Commands.Command;
+import Commands.PrivateCommandList;
 import main.DiscordBot;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -18,10 +19,16 @@ public class CommandEventListener extends ListenerAdapter {
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         String messageContent = event.getMessage().getContentRaw();
-        if (!event.getAuthor().isBot()  && !event.isFromType(ChannelType.PRIVATE)) {
-
-            if (messageContent.startsWith("!")) {
+        if (!event.getAuthor().isBot() && messageContent.startsWith("!")) {
+            if (!event.isFromType(ChannelType.PRIVATE)) {
                 for (Command c : CommandList.getCommands()) {
+                    if (c.keyMatches(messageContent)) {
+                        c.start(event);
+                        return;
+                    }
+                }
+            } else if  (event.isFromType(ChannelType.PRIVATE)) {
+                for (Command c : PrivateCommandList.getCommands()) {
                     if (c.keyMatches(messageContent)) {
                         c.start(event);
                         return;
@@ -30,7 +37,8 @@ public class CommandEventListener extends ListenerAdapter {
             }
         }
 
-        if(event.getAuthor().isBot() && !event.getMessage().isFromType(ChannelType.PRIVATE) && event.getMessage().getEmbeds().get(0).getColor() != null && event.getMessage().getEmbeds().get(0).getColor().equals(Color.CYAN) ){
+        if(event.getAuthor().isBot() && !event.getMessage().isFromType(ChannelType.PRIVATE) && !event.getMessage().getEmbeds().isEmpty() &&
+                event.getMessage().getEmbeds().get(0).getColor() != null && event.getMessage().getEmbeds().get(0).getColor().equals(Color.CYAN) ){
             event.getMessage().addReaction(event.getGuild().getEmoteById(YEET_EMOTE)).queue();
             event.getMessage().addReaction(event.getGuild().getEmoteById(DiscordBot.YEETNT_EMOTE)).queue();
         }

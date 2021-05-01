@@ -1,8 +1,8 @@
-package Commands.SH;
+package Commands.SH.Commands;
 
 import Commands.Command;
-import Commands.SH.Objects.Player;
-import Commands.SH.Objects.PlayerList;
+import Commands.SH.utils.Player;
+import Commands.SH.utils.PlayerList;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -23,12 +23,12 @@ public class SecretHitlerLeave  extends Command {
                 eb.setTitle(p.getName() + " has left the lobby.");
                 PlayerList.removePlayer(p);
                 event.getChannel().sendMessage(eb.build()).queue();
-                SecretHitlerLobby.showLobby(event);
+                SecretHitlerLobby.showLobby(event.getChannel());
                 return;
             }
         }
         eb.setTitle("You are not in the lobby");
         event.getChannel().sendMessage(eb.build()).queue();
-        SecretHitlerLobby.showLobby(event);
+        SecretHitlerLobby.showLobby(event.getChannel());
     }
 }

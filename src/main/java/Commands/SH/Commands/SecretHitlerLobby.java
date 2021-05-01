@@ -1,9 +1,10 @@
-package Commands.SH;
+package Commands.SH.Commands;
 
 import Commands.Command;
-import Commands.SH.Objects.Player;
-import Commands.SH.Objects.PlayerList;
+import Commands.SH.utils.Player;
+import Commands.SH.utils.PlayerList;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
@@ -16,10 +17,10 @@ public class SecretHitlerLobby extends Command {
 
     @Override
     public void start(MessageReceivedEvent event) {
-        showLobby(event);
+        showLobby(event.getChannel());
     }
 
-    public static void showLobby (MessageReceivedEvent event) {
+    public static void showLobby (MessageChannel event) {
         EmbedBuilder eb = new EmbedBuilder();
         String status;
         String name;
@@ -32,6 +33,6 @@ public class SecretHitlerLobby extends Command {
             eb.addField(name ,status,false);
         }
         eb.setColor(Color.RED);
-        event.getChannel().sendMessage(eb.build()).queue();
+        event.sendMessage(eb.build()).queue();
     }
 }

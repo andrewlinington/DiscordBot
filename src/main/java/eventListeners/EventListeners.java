@@ -7,6 +7,10 @@ public class EventListeners {
 
     private EventListeners () {}
 
-    public static final ImmutableList<ListenerAdapter> ALL = ImmutableList.of(new CommandEventListener(), new DisconnectEventListener());
+    public static final ImmutableList<ListenerAdapter> ALL = ImmutableList.of(
+            new CommandEventListener(),
+            new DisconnectEventListener(),
+            new AddReactionEventListener()
+    );
 
 }

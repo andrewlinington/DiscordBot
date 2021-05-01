@@ -1,6 +1,6 @@
 package Commands;
 
-import Commands.SH.*;
+import Commands.SH.Commands.*;
 
 import java.util.ArrayList;
 

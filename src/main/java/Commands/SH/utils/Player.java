@@ -1,22 +1,21 @@
-package Commands.SH.Objects;
+package Commands.SH.utils;
 
 
-import Commands.SH.SecretHitlerStatus;
 import net.dv8tion.jda.api.entities.User;
 
 public class Player {
-    //TODO:
-    // Role -> required for the game needs to have the role card type and specialization at minimum
     private Role role;
     private String name;
     private String id;
     private User user;
     private SecretHitlerStatus status;
+    private boolean voted = false;
+    private boolean failedToVote = false;
 
 
     public Player (String name, String id, User user){
         this.name = name;
-        status = SecretHitlerStatus.JOINED;
+        status = SecretHitlerStatus.Waiting;
         this.id = id;
         this.user = user;
     }
@@ -27,14 +26,16 @@ public class Player {
 
     public String userStatus () {
         switch (status) {
-            case JOINED:
-                return "Joined";
-            case ALIVE:
+            case Waiting:
+                return "Waiting";
+            case Alive:
                 return "Alive";
-            case DEAD:
+            case Dead:
                 return "Dead";
-            case PRESIDENT:
+            case President:
                 return "President";
+            case Chancellor:
+                return "Chancellor";
 
         }
         return "Error";
@@ -66,5 +67,26 @@ public class Player {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+
+    public void vote() {
+        voted = true;
+    }
+
+    public void removeVote() {
+        voted = false;
+    }
+
+    public boolean hasVoted() {
+        return voted;
+    }
+
+    public boolean isFailedToVote() {
+        return failedToVote;
+    }
+
+    public void setFailedToVote(boolean failedToVote) {
+        this.failedToVote = failedToVote;
     }
 }

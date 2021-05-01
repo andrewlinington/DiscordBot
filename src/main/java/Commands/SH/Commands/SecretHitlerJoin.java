@@ -1,8 +1,8 @@
-package Commands.SH;
+package Commands.SH.Commands;
 
 import Commands.Command;
-import Commands.SH.Objects.Player;
-import Commands.SH.Objects.PlayerList;
+import Commands.SH.utils.Player;
+import Commands.SH.utils.PlayerList;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -25,7 +25,7 @@ public class SecretHitlerJoin extends Command {
                 EmbedBuilder eb = new EmbedBuilder();
                 eb.setTitle("You have already Joined");
                 event.getChannel().sendMessage(eb.build()).queue();
-                SecretHitlerLobby.showLobby(event);
+                SecretHitlerLobby.showLobby(event.getChannel());
                 return;
             }
         }
@@ -40,7 +40,7 @@ public class SecretHitlerJoin extends Command {
             eb.setTitle("Maximum number of players reached.");
             event.getChannel().sendMessage(eb.build()).queue();
         }
-        SecretHitlerLobby.showLobby(event);
+        SecretHitlerLobby.showLobby(event.getChannel());
     }
 
 
