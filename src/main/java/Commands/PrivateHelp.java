@@ -17,8 +17,8 @@ public class PrivateHelp extends Command {
         eb.setTitle("Bot Commands:");
         eb.setColor(Color.GREEN);
         ArrayList<Command> commands = CommandList.getPrivateCommands();
-        eb.addField(commands.get(0).getDescription(),                          "!help",false);
-        eb.addField(commands.get(1).getDescription(),                         "!policy <#>",false);
+        eb.addField(commands.get(0).getDescription(),  "!help",false);
+        eb.addField(commands.get(1).getDescription(),  "!policy <#>",false);
         event.getChannel().sendMessage(eb.build()).queue();
     }
 }

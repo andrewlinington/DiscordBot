@@ -40,4 +40,8 @@ public class Deck {
     public boolean isEmpty() {
         return deck.isEmpty();
     }
+
+    public Policy remove(int i) {
+        return deck.remove(i);
+    }
 }

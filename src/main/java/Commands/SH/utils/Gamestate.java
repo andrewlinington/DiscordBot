@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Gamestate {
 
@@ -38,6 +39,8 @@ public class Gamestate {
 
 
     public static void setStart(int numPlayers, ArrayList<Player> players, int presidentLocation) {
+
+        board = new Board(numPlayers);
 
         deck = new Deck();
         deck.createDeck();
@@ -145,18 +148,20 @@ public class Gamestate {
 
             EmbedBuilder eb = new EmbedBuilder();
             eb.setTitle("Policies have been drawn");
+            //can beadjusted later to be more dynamic in size for the initial hand
             for (int i = 0; i < 3; i++) {
                 if(deck.isEmpty()){
                     deck = discard;
+                    Collections.shuffle(deck.deck);
                     discard = new Deck();
                 }
                 Policy p = deck.draw();
                 String type = p.getRole();
-                eb.addField("Policy " + (i +1), type , false);
+                eb.addField("Policy " + (i + 1), type , false);
                 hand.discard(p);
             }
             eb.setColor(Color.ORANGE);
-            eb.setDescription("Please select a policy using !policy <#1-3>");
+            eb.setDescription("Please select a policy to remove using !policy <#>");
             privateChannel.sendMessage(eb.build()).queue();
         });
 
@@ -202,5 +207,44 @@ public class Gamestate {
             gameStage = GameStage.Idle;
             //victory!!!
         }
+    }
+
+    public static void nextHand(int i, MessageReceivedEvent event) {
+        SecretHitlerStatus status = findPlayer(event.getAuthor().getId()).getStatus();
+        if(status.equals(SecretHitlerStatus.President) && gameStage == GameStage.LegislationPres) {
+            discard.discard(hand.remove(i -1));
+            legislateChancellor(event);
+        }
+        else if (status.equals(SecretHitlerStatus.Chancellor) && gameStage == GameStage.LegislationChancellor){
+            board.addPolicy(hand.remove(i -1), event);
+            int k = getHandSize();
+            for (int j = 0; j < k; j++) {
+                discard.discard(hand.draw());
+            }
+        } else {
+            EmbedBuilder eb = new EmbedBuilder();
+            eb.setTitle("You are not able to pick a policy at this time");
+            event.getPrivateChannel().sendMessage(eb.build()).queue();
+        }
+
+    }
+
+    private static void legislateChancellor(MessageReceivedEvent event) {
+        players.get(chancellorLocation).getUser().openPrivateChannel().queue(privateChannel -> {
+            EmbedBuilder eb = new EmbedBuilder();
+            eb.setTitle("Your Policy's");
+            eb.setColor(Color.ORANGE);
+            for (int i = 0; i <  hand.deck.size(); i++) {
+                eb.addField("Policy "  + (i + 1), hand.deck.get(i).getRole(), false);
+            }
+            gameStage = GameStage.LegislationChancellor;
+            eb.setDescription("Please select a policy to play using !policy <#>");
+            privateChannel.sendMessage(eb.build()).queue();
+        });
+
+    }
+
+    public static int getHandSize() {
+       return hand.deck.size();
     }
 }

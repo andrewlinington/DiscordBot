@@ -24,6 +24,9 @@ public class DiscordBot  {
 //    public static final long YEET_EMOTE = 837444097894645781L;
     public static final long YEET_EMOTE = 837445794956574761L;
     public static final long YEETNT_EMOTE = 837456729734250537L;
+    public static final long SERVER_ID = 836310628792008704L;
+    public static final long SH_CHANNEL = 836310628792008707L;
+
 
     public static void main(String[] args) {
         try {
@@ -35,7 +38,8 @@ public class DiscordBot  {
         List<GatewayIntent> gatewayIntents = new ArrayList<>();
         gatewayIntents.add(GatewayIntent.GUILD_MEMBERS);
         try {
-            JDABuilder.createDefault(token).setActivity(Activity.playing("!help")).build().addEventListener(EventListeners.ALL.toArray());
+            API = JDABuilder.createDefault(token).setActivity(Activity.playing("!help")).build();
+            API.addEventListener(EventListeners.ALL.toArray());
         } catch (LoginException e) {
             System.out.println("Failed to get config data");
             e.printStackTrace();

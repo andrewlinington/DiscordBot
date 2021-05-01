@@ -4,5 +4,5 @@ public enum GameStage {
     Election,
     Voting,
     Idle,
-    LegislationPres
+    LegislationChancellor, LegislationPres
 }

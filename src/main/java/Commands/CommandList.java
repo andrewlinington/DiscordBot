@@ -25,7 +25,7 @@ public final class CommandList {
      */
     private static void addAllPrivateCommands() {
         privateCommands.add(new PrivateHelp("!help", "Call for help" ));
-        privateCommands.add(new LegislativeVote("!vote", "Pick a Policy to remove" ));
+        privateCommands.add(new LegislativeVote("!vote", "Pick a Policy" ));
     }
 
     /**
