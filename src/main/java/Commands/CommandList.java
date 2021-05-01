@@ -20,9 +20,12 @@ public final class CommandList {
         addAllPrivateCommands();
     }
 
+    /**
+     * generates a list of private commands
+     */
     private static void addAllPrivateCommands() {
         privateCommands.add(new PrivateHelp("!help", "Call for help" ));
-        privateCommands.add(new LegislativeVote("!vote", "Pick a Policy" ));
+        privateCommands.add(new LegislativeVote("!vote", "Pick a Policy to remove" ));
     }
 
     /**
@@ -38,10 +41,18 @@ public final class CommandList {
 
     }
 
+    /**
+     * gets all the public commands
+     * @return public commands
+     */
     public static ArrayList<Command> getCommands() {
         return commands;
     }
 
+    /**
+     * gets all the private commands
+     * @return public commands
+     */
     public static ArrayList<Command> getPrivateCommands() {
         return privateCommands;
     }

@@ -29,17 +29,6 @@ public class Help extends Command {
         for (Command c: CommandList.getCommands()) {
             eb.addField(c.getDescription(),c.getKey(),false);
         }
-
-
-
-
-
-//        eb.addField("Call for help",                          "!help",false);
-//        eb.addField("Join the Lobby",                         "!join",false);
-//        eb.addField("Leave the Lobby",                        "!leave", false);
-//        eb.addField("Show the Lobby",                         "!show or !lobby",false);
-//        eb.addField("Start the Game",                         "!start",false);
-//        eb.addField("Elect a Chancellor",                     "!elect",false);
         event.getChannel().sendMessage(eb.build()).queue();
     }
 }
