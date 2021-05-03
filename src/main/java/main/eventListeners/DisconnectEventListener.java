@@ -6,9 +6,9 @@ import org.jetbrains.annotations.NotNull;
 
 public class DisconnectEventListener extends ListenerAdapter {
 
-
     @Override
     public void onDisconnect(@NotNull DisconnectEvent event) {
-        System.out.println("Attempting reconnect");
+        System.out.println("Attempting reconnect at:" + event.getTimeDisconnected());
+
     }
 }

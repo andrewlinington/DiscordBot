@@ -1,5 +1,9 @@
 package main;
 
+import Commands.utils.FileConfig;
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonReader;
 import main.eventListeners.EventListeners;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -7,11 +11,10 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 import javax.security.auth.login.LoginException;
-import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public class DiscordBot  {
     private static String token = "enter token here";
@@ -20,12 +23,8 @@ public class DiscordBot  {
 
 
     public static JDA API;
-//    //actual server emotes
-//    public static final long YEET_EMOTE = 837444097894645781L;
-    public static final long YEET_EMOTE = 837445794956574761L;
-    public static final long YEETNT_EMOTE = 837456729734250537L;
-    public static final long SERVER_ID = 836310628792008704L;
-    public static final long SH_CHANNEL = 836310628792008707L;
+    public static final String FILE_PATH = "src/main/java/main/res/";
+    public static FileConfig config = null;
 
 
     public static void main(String[] args) {
@@ -34,25 +33,24 @@ public class DiscordBot  {
         } catch (FileNotFoundException e) {
             System.out.println("Config file is missing");
             e.printStackTrace();
+            return;
         }
         List<GatewayIntent> gatewayIntents = new ArrayList<>();
         gatewayIntents.add(GatewayIntent.GUILD_MEMBERS);
         try {
-            API = JDABuilder.createDefault(token).setActivity(Activity.playing("!help")).build();
+            API = JDABuilder.createDefault(config.getToken()).setActivity(Activity.playing("!help")).build();
             API.addEventListener(EventListeners.ALL.toArray());
         } catch (LoginException e) {
             System.out.println("Failed to get config data");
             e.printStackTrace();
+            return;
         }
     }
 
     private static void getToken()throws FileNotFoundException {
-        File working = new File(CONFIG_FILENAME);
-        Scanner readConfig = new Scanner(working);
-        if (readConfig.hasNext()) {
-            token = readConfig.next();
-            token = token.substring(token.indexOf("=") + 1);
-        }
+        Gson g = new Gson();
+        JsonReader json =new JsonReader( new FileReader(CONFIG_FILENAME));
+        config = g.fromJson(json,new TypeToken<FileConfig>() {}.getType());
     }
 
 }

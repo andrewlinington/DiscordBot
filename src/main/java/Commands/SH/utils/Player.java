@@ -6,9 +6,9 @@ import net.dv8tion.jda.api.entities.User;
 
 public class Player {
     private Role role;
-    private String name;
-    private String id;
-    private User user;
+    private final String name;
+    private final String id;
+    private final User user;
     private SecretHitlerStatus status;
     private boolean voted = false;
     private boolean failedToVote = false;
@@ -26,20 +26,7 @@ public class Player {
     }
 
     public String userStatus () {
-        switch (status) {
-            case Waiting:
-                return "Waiting";
-            case Alive:
-                return "Alive";
-            case Dead:
-                return "Dead";
-            case President:
-                return "President";
-            case Chancellor:
-                return "Chancellor";
-
-        }
-        return "Error";
+         return status.name().replace("_", " ");
     }
 
     public String getName() {
@@ -66,11 +53,6 @@ public class Player {
         return user;
     }
 
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-
     public void vote() {
         voted = true;
     }
@@ -89,5 +71,12 @@ public class Player {
 
     public void setFailedToVote(boolean failedToVote) {
         this.failedToVote = failedToVote;
+    }
+
+    public void reset () {
+        status = SecretHitlerStatus.Waiting;
+        role = null;
+        voted = false;
+        failedToVote = false;
     }
 }

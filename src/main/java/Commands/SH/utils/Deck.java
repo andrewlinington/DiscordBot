@@ -1,7 +1,12 @@
 package Commands.SH.utils;
 
 import Commands.SH.utils.enums.RoleType;
+import main.DiscordBot;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -16,11 +21,19 @@ public class Deck {
 
 
     public void createDeck () {
+        BufferedImage liberal = null;
+        BufferedImage fascist = null;
+        try {
+            liberal = ImageIO.read(new File( DiscordBot.FILE_PATH + "Liberal.png"));
+            fascist = ImageIO.read(new File( DiscordBot.FILE_PATH + "Fascist.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         for (int i = 0; i < 6; i++) {
-            deck.add(new Policy(RoleType.Liberal));
+            deck.add(new Policy(RoleType.Liberal,liberal));
         }
         for (int i = 0; i < 11; i++) {
-            deck.add(new Policy(RoleType.Fascist));
+            deck.add(new Policy(RoleType.Fascist,fascist));
         }
         Collections.shuffle(deck);
     }

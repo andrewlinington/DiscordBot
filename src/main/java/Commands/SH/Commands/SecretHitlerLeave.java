@@ -1,6 +1,6 @@
 package Commands.SH.Commands;
 
-import Commands.Command;
+import Commands.utils.Command;
 import Commands.SH.utils.Player;
 import Commands.SH.utils.PlayerList;
 import net.dv8tion.jda.api.EmbedBuilder;

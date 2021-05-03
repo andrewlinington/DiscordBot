@@ -30,4 +30,13 @@ public final class PlayerList {
     public static int getPlayerCount() {
         return playerCount;
     }
+
+
+    public static void resetPlayers(){
+        for (Player p :
+                players) {
+            p.reset();
+        }
+    }
+
 }

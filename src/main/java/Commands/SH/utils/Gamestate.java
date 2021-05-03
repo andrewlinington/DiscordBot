@@ -1,16 +1,24 @@
 package Commands.SH.utils;
 
+
 import Commands.SH.Commands.SecretHitlerLobby;
 import Commands.SH.utils.enums.GameStage;
 import Commands.SH.utils.enums.SecretHitlerStatus;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import org.apache.commons.io.FileUtils;
 
 import java.awt.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+
+import static main.DiscordBot.*;
 
 public class Gamestate {
 
@@ -18,12 +26,15 @@ public class Gamestate {
 
     private static GameStage gameStage = GameStage.Idle;
     private static ArrayList<Player> players;
+    private static ArrayList<Player> fascists;
 
 
     //the locations of important navigation locations
     private static int presidentLocation;
     private static int nextLocation;
     private static int chancellorLocation;
+    private static int prevPresident;
+    private static int prevChancellor;
 
     private static int playerCount;
 
@@ -37,11 +48,24 @@ public class Gamestate {
 
     private static Board board;
 
+    private static int deadCount;
 
-    public static void setStart(int numPlayers, ArrayList<Player> players, int presidentLocation) {
 
+
+    //TODO: rejection status if rejected 3 times
+
+
+
+    public static void setStart(int numPlayers, ArrayList<Player> players,ArrayList<Player> fascists, int presidentLocation) {
+        Gamestate.fascists = fascists;
         board = new Board(numPlayers);
 
+
+        try {
+            FileUtils.cleanDirectory(new File(FILE_PATH + "temp/"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         deck = new Deck();
         deck.createDeck();
 
@@ -54,6 +78,9 @@ public class Gamestate {
 
         Gamestate.presidentLocation = presidentLocation;
         Gamestate.nextLocation = (presidentLocation == playerCount - 1) ? 0 : presidentLocation + 1;
+        Gamestate.chancellorLocation = presidentLocation;
+        Gamestate.prevChancellor = presidentLocation;
+        Gamestate.prevPresident = presidentLocation;
 
         yeet = 0;
         yeetnt = 0;
@@ -90,37 +117,39 @@ public class Gamestate {
 
 
     private static void checkVote(MessageReactionAddEvent event) {
-        if (yeet + yeetnt == playerCount) {
+        if (yeet + yeetnt == playerCount - deadCount) {
             for (Player p : players) {
                 p.removeVote();
                 p.setFailedToVote(false);
             }
             EmbedBuilder eb = new EmbedBuilder();
             if (yeetnt >= yeet) {
-                players.get(presidentLocation).setStatus(SecretHitlerStatus.Alive);
-                players.get(chancellorLocation).setStatus(SecretHitlerStatus.Alive);
-
-                presidentLocation = nextLocation;
-                players.get(presidentLocation).setStatus(SecretHitlerStatus.President);
-
+                //TODO: fix eligibility
+                //election ticker
+                nextPres();
                 Gamestate.nextLocation = (presidentLocation == playerCount - 1) ? 0 : presidentLocation + 1;
 
                 eb.setTitle("The vote has failed!");
                 eb.addField("Yeet:", String.valueOf(yeet), false);
                 eb.addField("Yeetn't:", String.valueOf(yeetnt), false);
                 eb.setDescription("The presidency has been passed to the next player");
-                gameStage = GameStage.Election;
+
+                event.getChannel().sendMessage(eb.build()).queue();
+                SecretHitlerLobby.showLobby(event.getChannel());
+                SecretHitlerLobby.requestElection(event.getTextChannel());
 
             } else {
                 eb.setTitle("The vote has Passed!");
                 eb.addField("Yeet:", String.valueOf(yeet), false);
                 eb.addField("Yeetn't:", String.valueOf(yeetnt), false);
                 eb.setDescription("The president and chancellor will now Legislate a policy");
+
                 gameStage = GameStage.LegislationPres;
+
+                event.getChannel().sendMessage(eb.build()).queue();
+                SecretHitlerLobby.showLobby(event.getChannel());
                 checkHitlerWin(event);
             }
-            event.getChannel().sendMessage(eb.build()).queue();
-            SecretHitlerLobby.showLobby(event.getChannel());
             Message m = event.getTextChannel().retrieveMessageById(event.getMessageId()).complete();
             m.delete().queue();
             yeetnt = 0;
@@ -128,11 +157,45 @@ public class Gamestate {
         }
     }
 
+    public static void nextPres() {
+        if( players.get(prevPresident).getStatus().equals(SecretHitlerStatus.Past_President)) {
+            players.get(prevPresident).setStatus(SecretHitlerStatus.Alive);
+        }
+        if( players.get(prevChancellor).getStatus().equals(SecretHitlerStatus.Past_Chancellor)) {
+            players.get(prevPresident).setStatus(SecretHitlerStatus.Alive);
+        }
+        if( players.get(presidentLocation).getStatus().equals(SecretHitlerStatus.President)) {
+            players.get(presidentLocation).setStatus(SecretHitlerStatus.Past_President);
+        }
+        if( players.get(chancellorLocation).getStatus().equals(SecretHitlerStatus.Chancellor)) {
+            players.get(chancellorLocation).setStatus(SecretHitlerStatus.Past_Chancellor);
+        }
+        prevPresident = presidentLocation;
+        prevChancellor = chancellorLocation;
+        presidentLocation = nextLocation;
+        while (players.get(presidentLocation).getStatus().equals(SecretHitlerStatus.Dead)) {
+            if (presidentLocation >= playerCount) {
+                presidentLocation = 0;
+            } else {
+                presidentLocation++;
+            }
+        }
+        presidentLocation = (presidentLocation >= playerCount) ? 0 : presidentLocation;
+        players.get(presidentLocation).setStatus(SecretHitlerStatus.President);
+    }
+
 
     private static void checkHitlerWin(MessageReactionAddEvent event) {
         if(players.get(chancellorLocation).getRole().getSecretRole().equals("Hitler") && board.isHitlerWin() ){
+            TextChannel channel = API.getGuildById(config.getServer_id()).getTextChannelsByName("general",true).get(0);
             //fascists win!
-            System.out.println("Hitler wins");
+            //Win condition
+            EmbedBuilder eb = new EmbedBuilder();
+            eb.setTitle("Fascists Win!");
+            eb.setDescription("Hitler has been elected.");
+            channel.sendMessage(eb.build()).queue();
+            eb.clear();
+            Gamestate.resetGame(channel);
         } else {
             messagePresident(event);
         }
@@ -185,35 +248,19 @@ public class Gamestate {
         checkVote(event);
     }
 
-
-
     public static int getPresidentLocation() {
         return presidentLocation;
-    }
-
-    public static void setPresidentLocation(int presidentLocation) {
-        Gamestate.presidentLocation = presidentLocation;
     }
 
     public static void setChancellorLocation(int chancellorLocation) {
         Gamestate.chancellorLocation = chancellorLocation;
     }
 
-    public static void checkWin(MessageReceivedEvent event, int fascist, int liberal) {
-        if (fascist == 6){
-            gameStage = GameStage.Idle;
-            //victory!!!
-        } else if (liberal == 5) {
-            gameStage = GameStage.Idle;
-            //victory!!!
-        }
-    }
-
     public static void nextHand(int i, MessageReceivedEvent event) {
         SecretHitlerStatus status = findPlayer(event.getAuthor().getId()).getStatus();
         if(status.equals(SecretHitlerStatus.President) && gameStage == GameStage.LegislationPres) {
             discard.discard(hand.remove(i -1));
-            legislateChancellor(event);
+            legislateChancellor();
         }
         else if (status.equals(SecretHitlerStatus.Chancellor) && gameStage == GameStage.LegislationChancellor){
             board.addPolicy(hand.remove(i -1), event);
@@ -229,12 +276,12 @@ public class Gamestate {
 
     }
 
-    private static void legislateChancellor(MessageReceivedEvent event) {
+    private static void legislateChancellor() {
         players.get(chancellorLocation).getUser().openPrivateChannel().queue(privateChannel -> {
             EmbedBuilder eb = new EmbedBuilder();
             eb.setTitle("Your Policy's");
             eb.setColor(Color.ORANGE);
-            for (int i = 0; i <  hand.deck.size(); i++) {
+            for (int i = 0; i < getHandSize(); i++) {
                 eb.addField("Policy "  + (i + 1), hand.deck.get(i).getRole(), false);
             }
             gameStage = GameStage.LegislationChancellor;
@@ -246,5 +293,90 @@ public class Gamestate {
 
     public static int getHandSize() {
        return hand.deck.size();
+    }
+
+    public static void peekThree(EmbedBuilder eb) {
+        if(deck.deck.size() < 3){
+            Collections.shuffle(discard.deck);
+            deck.deck.addAll(discard.deck);
+            discard = new Deck();
+        }
+        ArrayList<Policy> policyList = deck.peek();
+        for (int i = 0; i < 3 ; i++) {
+            eb.addField("Policy ", policyList.get(i).getRole(), false);
+        }
+
+    }
+
+    public static void printFascists(EmbedBuilder eb) {
+        for (Player p: fascists) {
+            eb.addField(p.getName(), p.getRole().getSecretRole(), false);
+        }
+    }
+
+    public static void updateNextPres() {
+        nextLocation = (presidentLocation >= playerCount - 1) ? 0 : presidentLocation + 1;
+    }
+
+    public static void updateNextChosenPres(User pres) {
+        nextLocation = players.indexOf(findPlayer(pres.getId()));
+    }
+    public static void updateNextChosenPres() {
+        nextLocation = (prevPresident >= playerCount - 1) ? 0 : prevPresident + 1;
+    }
+
+    public static void resetGame (TextChannel channel) {
+        EmbedBuilder eb = new EmbedBuilder();
+        eb.setTitle("Fascists:");
+        printFascists(eb);
+        channel.sendMessage(eb.build()).queue();
+        PlayerList.resetPlayers();
+        gameStage = GameStage.Idle;
+        eb.clear();
+        SecretHitlerLobby.showLobby(channel);
+        eb.setTitle("To play again with all players in lobby, type !start");
+        channel.sendMessage(eb.build()).queue();
+    }
+
+
+    public static void addVeto(boolean vote, MessageReactionAddEvent event) {
+        if (vote) {
+            yeet++;
+        } else {
+            yeetnt++;
+        }
+
+        if(yeet + yeetnt == 2) {
+            Policy p = board.vetoPolicy();
+            EmbedBuilder eb = new EmbedBuilder();
+            if(yeet == 2) {
+                //election ticker
+                eb.setTitle("Veto'd the " + p.getRole() + " policy");
+                discard.discard(p);
+    //TODO: fix this to diff func call
+                Gamestate.nextPres();
+                Gamestate.updateNextPres();
+                event.getTextChannel().sendMessage(eb.build()).queue();
+                SecretHitlerLobby.showLobby(event.getChannel());
+                SecretHitlerLobby.requestElection(event.getTextChannel());
+            } else {
+                eb.setTitle("Failed to veto the policy");
+                event.getTextChannel().sendMessage(eb.build()).queue();
+                board.doAction(event.getTextChannel(), p);
+            }
+
+        }
+    }
+
+    public static void removeVeto(boolean vote) {
+        if (vote) {
+            yeet--;
+        } else {
+            yeetnt--;
+        }
+    }
+
+    public static void DeadCountAdd() {
+        Gamestate.deadCount++;
     }
 }

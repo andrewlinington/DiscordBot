@@ -1,5 +1,8 @@
-package Commands;
+package Commands.utils;
 
+import Commands.Help;
+import Commands.PrivateHelp;
+import Commands.Rules;
 import Commands.SH.Commands.*;
 
 import java.util.ArrayList;
@@ -25,7 +28,7 @@ public final class CommandList {
      */
     private static void addAllPrivateCommands() {
         privateCommands.add(new PrivateHelp("!help", "Call for help" ));
-        privateCommands.add(new LegislativeVote("!vote", "Pick a Policy" ));
+        privateCommands.add(new LegislativeVote("!policy", "PresidentPick a Policy" ));
     }
 
     /**
@@ -38,7 +41,10 @@ public final class CommandList {
         commands.add(new SecretHitlerLobby("!lobby","Show the Lobby"));
         commands.add(new SecretHitlerStart("!start", "Start the Game"));
         commands.add(new SecretHitlerElection("!elect", "Elect a Chancellor"));
-
+        commands.add(new ShootPlayer("!shoot", "Shoots a Player"));
+        commands.add(new PresidentPick("!pick", "Picks the next president" ));
+        commands.add(new PresidentInvestigate("!info", "Locates the players public role"));
+        commands.add(new Rules("!rules", "Da Rules"));
     }
 
     /**

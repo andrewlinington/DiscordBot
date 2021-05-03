@@ -1,10 +1,13 @@
 package Commands.SH.Commands;
 
-import Commands.Command;
+import Commands.utils.Command;
+import Commands.SH.utils.Gamestate;
 import Commands.SH.utils.Player;
 import Commands.SH.utils.PlayerList;
+import Commands.SH.utils.enums.GameStage;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
@@ -14,6 +17,14 @@ public class SecretHitlerLobby extends Command {
 
     public SecretHitlerLobby(String key, String desc) {
         super(key, desc);
+    }
+
+    public static void requestElection(TextChannel channel) {
+        EmbedBuilder eb = new EmbedBuilder();
+        eb.setTitle("Please pick a chancellor");
+        Gamestate.setGameStage(GameStage.Election);
+        channel.sendMessage("<@" +Gamestate.getPlayers().get(Gamestate.getPresidentLocation()).getUser().getId() + ">").queue();
+        channel.sendMessage(eb.build()).queue();
     }
 
     @Override

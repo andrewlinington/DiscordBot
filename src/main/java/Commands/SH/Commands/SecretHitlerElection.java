@@ -1,18 +1,16 @@
 package Commands.SH.Commands;
 
-import Commands.Command;
-import Commands.SH.utils.enums.GameStage;
+import Commands.utils.Command;
 import Commands.SH.utils.Gamestate;
 import Commands.SH.utils.Player;
+import Commands.SH.utils.enums.GameStage;
 import Commands.SH.utils.enums.SecretHitlerStatus;
+import main.DiscordBot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
-
-import static main.DiscordBot.YEETNT_EMOTE;
-import static main.DiscordBot.YEET_EMOTE;
 
 public class SecretHitlerElection extends Command {
 
@@ -27,8 +25,8 @@ public class SecretHitlerElection extends Command {
 
     @Override
     public void start(MessageReceivedEvent event) {
-        Emote yeetEmote = event.getGuild().getEmoteById(YEET_EMOTE);
-        Emote yeetntEmote = event.getGuild().getEmoteById(YEETNT_EMOTE);
+        Emote yeetEmote = event.getGuild().getEmoteById(DiscordBot.config.getYeet_emote());
+        Emote yeetntEmote = event.getGuild().getEmoteById(DiscordBot.config.getYeetnt_emote());
         EmbedBuilder eb = new EmbedBuilder();
         if(!Gamestate.getGameStage().equals(GameStage.Election)){
             eb.setTitle("Game has not arrived at election stage");
@@ -52,7 +50,9 @@ public class SecretHitlerElection extends Command {
              Player chancellor = Gamestate.findPlayer(id);
              if(chancellor == null || chancellor.getStatus().equals(SecretHitlerStatus.Dead) || chancellor.getStatus().equals(SecretHitlerStatus.Waiting)) {
                  eb.setTitle("Player must be Alive or Active to be a chancellor");
-             } else {
+             }else if (chancellor.getStatus().equals(SecretHitlerStatus.Past_Chancellor) || (chancellor.getStatus().equals(SecretHitlerStatus.Past_President) && Gamestate.getPlayerCount() > 5)) {
+                 eb.setTitle("Player cannot be from previous legislation");
+             }  else {
                  eb.setTitle("The President has chosen a Chancellor!");
                  eb.setDescription("please vote " + yeetEmote.getAsMention() + " or " + yeetntEmote.getAsMention());
                  eb.setColor(Color.CYAN);

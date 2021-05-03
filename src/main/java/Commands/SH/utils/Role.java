@@ -10,14 +10,19 @@ public class Role {
     private final RoleType publicRole;
     private final RoleType secretRole;
 
+    private String publicImage;
+    private String privateImage;
+
     /**
      * creates a new Role type
      * @param role the public role
      * @param secretRole the private/secret role
      */
-    public Role(RoleType role, RoleType secretRole) {
-        publicRole = role;
+    public Role(RoleType role, RoleType secretRole, String publicImage, String privateImage) {
+        this.publicRole = role;
         this.secretRole = secretRole;
+        this.privateImage = privateImage;
+        this.publicImage = publicImage;
     }
 
     /**
@@ -34,6 +39,14 @@ public class Role {
      */
     public String getSecretRole () {
          return secretRole.name();
+    }
+
+    public String getPublicImage() {
+        return publicImage;
+    }
+
+    public String getPrivateImage() {
+        return privateImage;
     }
 
 }

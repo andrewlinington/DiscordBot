@@ -2,19 +2,23 @@ package Commands.SH.utils;
 
 import Commands.SH.utils.enums.RoleType;
 
+import java.awt.image.BufferedImage;
+
 /**
  * The Policy card
- * TODO: add images to cards
  */
 public class Policy {
     private final RoleType role;
+    private final BufferedImage image;
 
     /**
      * Instantiates a Policy with a type
      * @param role the role to be used for the policy
+     * @param image the cards image
      */
-    public Policy(RoleType role) {
+    public Policy(RoleType role, BufferedImage image) {
         this.role = role;
+        this.image = image;
     }
 
     /**
@@ -25,4 +29,11 @@ public class Policy {
         return role.name();
     }
 
+    /**
+     * Gets the cards image
+     * @return the Image
+     */
+    public BufferedImage getImage() {
+        return image;
+    }
 }
