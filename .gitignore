@@ -1,4 +1,5 @@
 config.txt
+token.txt
 *.class
-.gradle/**
-build/**
+.gradle/*
+build/*
