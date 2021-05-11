@@ -1,11 +1,14 @@
 package Commands.SH.utils;
 
 import Commands.SH.Commands.SecretHitlerLobby;
+import Commands.SH.Helper.EmbededHelper;
 import Commands.SH.utils.enums.BoardType;
 import Commands.SH.utils.enums.GameStage;
+import main.utils.ServerGame;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.entities.User;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -13,10 +16,12 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Objects;
 
-import static main.DiscordBot.*;
+import static main.DiscordBot.FILE_PATH;
 
+
+
+//TODO: REFACTOR
 public class Board {
 
     private final ArrayList<Policy> fascist;
@@ -42,20 +47,21 @@ public class Board {
     }
 
 
-    public void addPolicy (Policy p, MessageReceivedEvent event) {
-       EmbedBuilder eb = new EmbedBuilder();
+    public void addPolicy (Policy p, User author) {
+        Guild g = ServerGame.findUserServer(author);
+        TextChannel channel = g.getTextChannelById(ServerGame.getConfig().get(g.getIdLong()).getBot_channel());
+        addPolicyToBoard(p, channel);
+        performAction(channel, p);
+    }
+
+    private void addPolicyToBoard(Policy p, TextChannel channel) {
         if(p.getRole().equals("Fascist")){
             fascist.add(p);
             hitlerWin = fascist.size() >= 3;
-            eb.setColor(Color.RED);
         } else {
             liberal.add(p);
-            eb.setColor(Color.BLUE);
         }
-        eb.setTitle("Policy added: " + p.getRole());
-        TextChannel channel = Objects.requireNonNull(API.getGuildById(config.getServer_id())).getTextChannelById(config.getBot_channel());
-        channel.sendMessage(eb.build()).queue();
-        performAction(channel, p);
+        EmbededHelper.sendEmbed(channel ,  EmbededHelper.createEmbeded("Policy added: " + p.getRole(), ((p.getRole().equals("Fascist")) ? Color.red :Color.BLUE)),false);
     }
 
     private void performAction(TextChannel channel, Policy p) {
@@ -64,75 +70,63 @@ public class Board {
             return;
         }
         doAction(channel,p);
-
     }
-   public void doAction (TextChannel channel, Policy p) {
-        EmbedBuilder eb  = new EmbedBuilder();
 
-
+    public void addForcedPolicy (Policy p, TextChannel channel) {
+        addPolicyToBoard(p, channel);
         showBoard(channel,p);
+        checkWinConditions(channel);
+    }
+
+    private boolean checkWinConditions( TextChannel channel) {
+        Gamestate gs = ServerGame.getGuildGames().get(channel.getGuild());
+        if (fascist.size() == 6) {
+            //Win condition
+            EmbededHelper.sendEmbed(channel, EmbededHelper.createEmbeded("Fascists Win!" , Color.red,"All six fascist Policies have been played."),true);
+            gs.resetGame(channel);
+            return true;
+        }
+        else if (liberal.size() == 5) {
+            //Win condition
+            EmbededHelper.sendEmbed(channel, EmbededHelper.createEmbeded("Liberals Win!", Color.BLUE, "All five liberal Policies have been played."),false);
+            gs.resetGame(channel);
+            return true;
+        }
+        return false;
+    }
+
+    public void doAction (TextChannel channel, Policy p) {
+        Gamestate gs = ServerGame.getGuildGames().get(channel.getGuild());
+        showBoard(channel,p);
+        if(checkWinConditions(channel)) {
+            return;
+        }
         if(p.getRole().equals("Fascist")) {
             if(fascist.size()==5){
                 canVeto = true;
             }
 
             if ((BoardType.MED == type && fascist.size() == 2) || (BoardType.LARGE == type && (fascist.size() == 2 || fascist.size() == 1))) {
-                SecretHitlerLobby.showLobby(channel);
-                Gamestate.setGameStage(GameStage.Investigate);
-                eb.setColor(Color.green);
-                eb.setTitle("The President must choose who to investigate");
-                eb.appendDescription("use !info <@name> to investigate someone");
-                channel.sendMessage(eb.build()).queue();
+                gs.setGameStage(GameStage.Investigate);
+                EmbededHelper.sendEmbed(channel, EmbededHelper.createEmbeded("The President must choose who to investigate" ,Color.green , "use !info <@name> to investigate someone"),false);
                 return;
             } else if (fascist.size() == 4 || fascist.size() == 5) {
-                Gamestate.setGameStage(GameStage.Shoot);
-                SecretHitlerLobby.showLobby(channel);
-                eb.setColor(Color.green);
-                eb.setTitle("The President must choose who to shoot");
-                eb.appendDescription("use !shoot <@name> to kill someone");
-                channel.sendMessage(eb.build()).queue();
+                gs.setGameStage(GameStage.Shoot);
+                EmbededHelper.sendEmbed(channel, EmbededHelper.createEmbeded("The President must choose who to shoot" ,Color.green , "use !shoot <@name> to kill someone"),false);
                 return;
             } else if ((BoardType.MED == type || BoardType.LARGE == type) && fascist.size() == 3) {
-                Gamestate.setGameStage(GameStage.Pick);
-                SecretHitlerLobby.showLobby(channel);
-                eb.setColor(Color.green);
-                eb.setTitle("The President chooses the next president");
-                eb.appendDescription("use !pick <@name>");
-                channel.sendMessage(eb.build()).queue();
+                gs.setGameStage(GameStage.Pick);
+                EmbededHelper.sendEmbed(channel, EmbededHelper.createEmbeded("The President must choose the next president" ,Color.green , "use !pick <@name>"),false);
                 return;
             } else if (BoardType.SMALL == type && fascist.size() == 3) {
-                eb.setColor(Color.green);
-                eb.setTitle("The President gets to see the next 3 Policy's");
-                channel.sendMessage(eb.build()).queue();
-                eb.clear();
-
-                eb.setTitle("Top three Policies");
-                Gamestate.peekThree(eb);
-                Gamestate.getPlayers().get(Gamestate.getPresidentLocation()).getUser().openPrivateChannel().queue(privateChannel -> {
-                    privateChannel.sendMessage(eb.build()).queue();
+                EmbededHelper.sendEmbed(channel, EmbededHelper.createEmbeded("The President gets to see the next 3 Policy's" , Color.green),true);
+                gs.getPlayers().get(gs.getPresidentLocation()).getUser().openPrivateChannel().queue(privateChannel -> {
+                    EmbededHelper.sendEmbed(privateChannel, EmbededHelper.createEmbeded("Top three Policies" , Color.yellow,"", gs.peekThree() ),true);
                 });
-            }else if (fascist.size() == 6) {
-                //Win condition
-                eb.setTitle("Fascists Win!");
-                eb.setColor(Color.red);
-                eb.setDescription("All six fascist Policies have been played.");
-                channel.sendMessage(eb.build()).queue();
-                Gamestate.resetGame(channel);
-                return;
             }
-        } else if (p.getRole().equals("Liberal") && liberal.size() == 5) {
-            //Win condition
-            eb.setTitle("Liberals Win!");
-            eb.setColor(Color.blue);
-            eb.setDescription("All five liberal Policies have been played.");
-            channel.sendMessage(eb.build()).queue();
-            Gamestate.resetGame(channel);
-            return;
         }
-        eb.clear();
-        Gamestate.nextPres();
-        Gamestate.updateNextPres();
-        SecretHitlerLobby.showLobby(channel);
+        gs.nextPres();
+        gs.updateNextPres();
         SecretHitlerLobby.requestElection(channel);
     }
 
@@ -140,6 +134,7 @@ public class Board {
         showFascistTrack(channel,p);
         showLiberalTrack(channel,p);
     }
+
 
     private void showLiberalTrack(TextChannel channel, Policy p) {
         File in = new File (FILE_PATH + "temp/LiberalTrack.png");
@@ -162,6 +157,7 @@ public class Board {
         }
 
         EmbedBuilder eb = new EmbedBuilder();
+        eb.setColor(Color.BLUE);
         eb.setTitle("Liberal");
         eb.setImage("attachment://LiberalBoard.png");
         channel.sendMessage(eb.build()).addFile(in,"LiberalBoard.png").queue();
@@ -190,12 +186,13 @@ public class Board {
 
         EmbedBuilder eb = new EmbedBuilder();
         eb.setTitle("Fascist");
+        eb.setColor(Color.red);
         eb.setImage("attachment://FascistBoard.png");
         channel.sendMessage(eb.build()).addFile(in,"FascistBoard.png").queue();
     }
 
     private int getXDistFascist() {
-        return 63 + 203 * (fascist.size() -1);
+        return 63 + 143 * (fascist.size() -1);
     }
 
     private int getXDistLiberal() {
@@ -207,12 +204,9 @@ public class Board {
     }
 
     private void  tryVeto(TextChannel channel, Policy p) {
-        EmbedBuilder eb = new EmbedBuilder();
         toPlay = p;
-        eb.setTitle("Veto the Policy?");
-        eb.setColor(Color.CYAN);
-        Gamestate.setGameStage(GameStage.Veto);
-        channel.sendMessage(eb.build()).queue();
+        EmbededHelper.sendEmbed(channel, EmbededHelper.createEmbeded("Veto the Policy?", Color.cyan),false);
+        ServerGame.getGuildGames().get(channel.getGuild()).setGameStage(GameStage.Veto);
     }
 
    public Policy vetoPolicy () {

@@ -1,16 +1,19 @@
 package Commands.SH.Commands;
 
-import Commands.utils.Command;
+import Commands.SH.Helper.EmbededHelper;
+import Commands.SH.Helper.MessageHelper;
 import Commands.SH.utils.Gamestate;
 import Commands.SH.utils.Player;
 import Commands.SH.utils.enums.GameStage;
 import Commands.SH.utils.enums.SecretHitlerStatus;
-import net.dv8tion.jda.api.EmbedBuilder;
+import Commands.utils.Command;
+import main.utils.ServerGame;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import static Commands.SH.utils.Gamestate.DeadCountAdd;
-import static Commands.SH.utils.Gamestate.resetGame;
+import java.awt.*;
 
+
+//TODO: REFACTOR
 public class ShootPlayer extends Command {
     /**
      * Generates the Command for a specific Key
@@ -34,42 +37,34 @@ public class ShootPlayer extends Command {
 
     @Override
     public void start(MessageReceivedEvent event) {
-        EmbedBuilder eb = new EmbedBuilder();
-        if(!Gamestate.getGameStage().equals(GameStage.Shoot)){
-            eb.setTitle("There is no power to shoot at this time");
-            event.getChannel().sendMessage(eb.build()).queue();
+        Gamestate gs = ServerGame.getGuildGames().get(event.getGuild());
+        if(!gs.getGameStage().equals(GameStage.Shoot)){
+            MessageHelper.sendMessage(event.getTextChannel(), "There is no power to shoot at this time");
             return;
         }
         if(event.getMessage().getMentionedUsers().isEmpty()){
-            event.getChannel().sendMessage("Usage is !shoot <@user>").queue();
+            MessageHelper.sendMessage(event.getTextChannel(), "Usage is !shoot <@user>");
             return;
         }
 
         String id = event.getMessage().getMentionedUsers().get(0).getId();
-        Player president = Gamestate.findPlayer(event.getMember().getId());
+        Player president = gs.findPlayer(event.getMember().getId());
         if(president == null) {
-            eb.setTitle("You are not playing.");
-            event.getChannel().sendMessage(eb.build()).queue();
+            MessageHelper.sendMessage(event.getTextChannel(), "You are not playing.");
         } else if (!president.getStatus().equals(SecretHitlerStatus.President)) {
-            eb.setTitle("You are not the President.");
-            event.getChannel().sendMessage(eb.build()).queue();
+            MessageHelper.sendMessage(event.getTextChannel(), "You are not the President.");
         } else {
-            Player hopefullyHitler = Gamestate.findPlayer(id);
-            eb.setTitle("You have killed " + hopefullyHitler.getName() + "!");
+            Player hopefullyHitler = gs.findPlayer(id);
             if(hopefullyHitler.getRole().getSecretRole().equals("Hitler")) {
-                //Win condition
-                //hitler has been killed
-                eb.setDescription("They were Hitler!");
-                event.getChannel().sendMessage(eb.build()).queue();
-                resetGame(event.getTextChannel());
+                EmbededHelper.sendEmbed(event.getTextChannel(), EmbededHelper.createEmbeded("You have killed " + hopefullyHitler.getName() + "!", Color.blue, "They were Hitler!"),false);
+                gs.resetGame(event.getTextChannel());
                 return;
             }
-            DeadCountAdd();
+            gs.DeadCountAdd();
+            EmbededHelper.sendEmbed(event.getTextChannel(), EmbededHelper.createEmbeded("You have killed " + hopefullyHitler.getName() + "!", Color.blue),false);
             hopefullyHitler.setStatus(SecretHitlerStatus.Dead);
-            event.getChannel().sendMessage(eb.build());
-            Gamestate.nextPres();
-            Gamestate.updateNextPres();
-            SecretHitlerLobby.showLobby(event.getChannel());
+            gs.nextPres();
+            gs.updateNextPres();
             SecretHitlerLobby.requestElection(event.getTextChannel());
         }
     }

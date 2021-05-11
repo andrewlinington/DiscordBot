@@ -1,13 +1,15 @@
 package Commands.SH.Commands;
 
-import Commands.utils.Command;
+import Commands.SH.Helper.MessageHelper;
 import Commands.SH.utils.Gamestate;
 import Commands.SH.utils.Player;
 import Commands.SH.utils.enums.GameStage;
 import Commands.SH.utils.enums.SecretHitlerStatus;
-import net.dv8tion.jda.api.EmbedBuilder;
+import Commands.utils.Command;
+import main.utils.ServerGame;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+//TODO: REFACTOR
 public class PresidentPick extends Command {
     /**
      * Generates the Command for a specific Key
@@ -26,39 +28,32 @@ public class PresidentPick extends Command {
 
     @Override
     public void start(MessageReceivedEvent event) {
-        EmbedBuilder eb = new EmbedBuilder();
-        if(!Gamestate.getGameStage().equals(GameStage.Pick)){
-            eb.setTitle("There is no power to Pick a president at this time");
-            event.getChannel().sendMessage(eb.build()).queue();
+        Gamestate gs = ServerGame.getGuildGames().get(event.getGuild());
+
+        if(!gs.getGameStage().equals(GameStage.Pick)){
+            MessageHelper.sendMessage(event.getTextChannel(), "There is no power to Pick a president at this time");
             return;
         }
         if(event.getMessage().getMentionedUsers().isEmpty()){
-            event.getChannel().sendMessage("Usage is !pick <@user>").queue();
+            MessageHelper.sendMessage(event.getTextChannel(), "Usage is !pick <@user>");
             return;
         }
 
         String id = event.getMessage().getMentionedUsers().get(0).getId();
-        Player president = Gamestate.findPlayer(event.getMember().getId());
+        Player president = gs.findPlayer(event.getMember().getId());
         if(president == null) {
-            eb.setTitle("You are not playing.");
-            event.getChannel().sendMessage(eb.build()).queue();
+            MessageHelper.sendMessage(event.getTextChannel(), "You are not playing.");
         } else if (!president.getStatus().equals(SecretHitlerStatus.President)) {
-            eb.setTitle("You are not the President.");
-            event.getChannel().sendMessage(eb.build()).queue();
+            MessageHelper.sendMessage(event.getTextChannel(), "You are not the President.");
         } else {
-            Player p = Gamestate.findPlayer(id);
+            Player p = gs.findPlayer(id);
             if(!p.userStatus().equals("Dead") && !president.equals(p)) {
-                Gamestate.updateNextChosenPres(p.getUser());
-                Gamestate.nextPres();
-                Gamestate.updateNextChosenPres();
-                SecretHitlerLobby.showLobby(event.getChannel());
+                gs.updateNextChosenPres(p.getUser());
+                gs.nextPres();
+                gs.updateNextChosenPres();
                 SecretHitlerLobby.requestElection(event.getTextChannel());
-            } else if (p.userStatus().equals("Dead")) {
-                eb.setTitle("A dead player cannot be president");
-                event.getChannel().sendMessage(eb.build()).queue();
-            } else if (p.equals(president)) {
-                eb.setTitle("You cannot elect yourself");
-                event.getChannel().sendMessage(eb.build()).queue();
+            } else {
+                MessageHelper.sendMessage(event.getTextChannel(), (p.userStatus().equals("Dead") ? "A dead player cannot be president" : "You cannot elect yourself"));
             }
         }
     }

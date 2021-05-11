@@ -1,8 +1,9 @@
 package Commands;
 
+import Commands.SH.Helper.EmbededHelper;
 import Commands.utils.Command;
 import Commands.utils.CommandList;
-import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
@@ -25,15 +26,16 @@ public class PrivateHelp extends Command {
      */
     @Override
     public void start(MessageReceivedEvent event) {
-        EmbedBuilder eb = new EmbedBuilder();
-        eb.setTitle("Bot Commands:");
-
-        eb.setColor(Color.GREEN);
-
-        ArrayList<Command> commands = CommandList.getPrivateCommands();
-        eb.addField(commands.get(0).getDescription(),  "!help",false);
-        eb.addField(commands.get(1).getDescription(),  "!policy <#>",false);
-
-        event.getChannel().sendMessage(eb.build()).queue();
+        EmbededHelper.sendEmbed(event.getPrivateChannel(), EmbededHelper.createEmbeded("Bot Commands:",Color.green,"", generateField()), true);
     }
+
+
+    private ArrayList<MessageEmbed.Field> generateField () {
+        ArrayList<Command> commands = CommandList.getPrivateCommands();
+        ArrayList<MessageEmbed.Field> fields = new ArrayList<>();
+        fields.add(EmbededHelper.generateField(commands.get(0).getDescription(),"!help"));
+        fields.add(EmbededHelper.generateField(commands.get(1).getDescription(),"!policy <#>"));
+        return fields;
+    }
+
 }

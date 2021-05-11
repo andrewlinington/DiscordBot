@@ -1,17 +1,20 @@
 package Commands.SH.Commands;
 
-import Commands.utils.Command;
+import Commands.SH.Helper.EmbededHelper;
+import Commands.SH.Helper.MessageHelper;
 import Commands.SH.utils.Gamestate;
 import Commands.SH.utils.Player;
 import Commands.SH.utils.enums.GameStage;
 import Commands.SH.utils.enums.SecretHitlerStatus;
-import main.DiscordBot;
-import net.dv8tion.jda.api.EmbedBuilder;
+import Commands.utils.Command;
+import Commands.utils.FileConfig;
+import main.utils.ServerGame;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
 
+//TODO: REFACTOR
 public class SecretHitlerElection extends Command {
 
     public SecretHitlerElection(String key, String desc) {
@@ -25,12 +28,14 @@ public class SecretHitlerElection extends Command {
 
     @Override
     public void start(MessageReceivedEvent event) {
-        Emote yeetEmote = event.getGuild().getEmoteById(DiscordBot.config.getYeet_emote());
-        Emote yeetntEmote = event.getGuild().getEmoteById(DiscordBot.config.getYeetnt_emote());
-        EmbedBuilder eb = new EmbedBuilder();
-        if(!Gamestate.getGameStage().equals(GameStage.Election)){
-            eb.setTitle("Game has not arrived at election stage");
-            event.getChannel().sendMessage(eb.build()).queue();
+        FileConfig fc =   ServerGame.getConfig().get(event.getGuild().getIdLong());
+        Gamestate gs =   ServerGame.getGuildGames().get(event.getGuild());
+
+        Emote yeetEmote = event.getGuild().getEmoteById(fc.getYeet_emote());
+        Emote yeetntEmote = event.getGuild().getEmoteById(fc.getYeetnt_emote());
+
+        if(!gs.getGameStage().equals(GameStage.Election)){
+            MessageHelper.sendMessage(event.getChannel(),  "Game has not arrived at election stage");
             return;
         }
          if(event.getMessage().getMentionedUsers().isEmpty()){
@@ -39,35 +44,28 @@ public class SecretHitlerElection extends Command {
          }
 
          String id = event.getMessage().getMentionedUsers().get(0).getId();
-         Player president = Gamestate.findPlayer(event.getMember().getId());
+         Player president = gs.findPlayer(event.getMember().getId());
          if(president == null) {
-             eb.setTitle("You are not playing.");
-             event.getChannel().sendMessage(eb.build()).queue();
+             MessageHelper.sendMessage(event.getChannel(),"You are not playing.");
+             return;
          }
 
 
          if( !id.equals(event.getMember().getId()) && president.getStatus().equals(SecretHitlerStatus.President) ) {
-             Player chancellor = Gamestate.findPlayer(id);
-             if(chancellor == null || chancellor.getStatus().equals(SecretHitlerStatus.Dead) || chancellor.getStatus().equals(SecretHitlerStatus.Waiting)) {
-                 eb.setTitle("Player must be Alive or Active to be a chancellor");
-             }else if (chancellor.getStatus().equals(SecretHitlerStatus.Past_Chancellor) || (chancellor.getStatus().equals(SecretHitlerStatus.Past_President) && Gamestate.getPlayerCount() > 5)) {
-                 eb.setTitle("Player cannot be from previous legislation");
-             }  else {
-                 eb.setTitle("The President has chosen a Chancellor!");
-                 eb.setDescription("please vote " + yeetEmote.getAsMention() + " or " + yeetntEmote.getAsMention());
-                 eb.setColor(Color.CYAN);
-                 Gamestate.setGameStage(GameStage.Voting);
+             Player chancellor = gs.findPlayer(id);
+             if (chancellor == null || chancellor.getStatus().equals(SecretHitlerStatus.Dead) || chancellor.getStatus().equals(SecretHitlerStatus.Waiting)) {
+                 MessageHelper.sendMessage(event.getChannel(), "Player must be Alive or Active to be a chancellor");
+             } else if (chancellor.getStatus().equals(SecretHitlerStatus.Past_Chancellor) || (chancellor.getStatus().equals(SecretHitlerStatus.Past_President) && gs.getPlayerCount() > 5)) {
+                 MessageHelper.sendMessage(event.getChannel(), "Player cannot be from previous legislation");
+             } else {
+                 EmbededHelper.sendEmbed(event.getTextChannel(), EmbededHelper.createEmbeded("The President has chosen a Chancellor!", Color.CYAN, "Please vote " + yeetEmote.getAsMention() + " or " + yeetntEmote.getAsMention()), false);
+                 gs.setGameStage(GameStage.Voting);
                  chancellor.setStatus(SecretHitlerStatus.Chancellor);
-                 Gamestate.setChancellorLocation(Gamestate.getPlayers().indexOf(chancellor));
+                 gs.setChancellorLocation(gs.getPlayers().indexOf(chancellor));
              }
-             event.getChannel().sendMessage(eb.build()).queue();
-         } else if(!president.getStatus().equals(SecretHitlerStatus.President)) {
-             eb.setTitle("You are not the president.");
-             event.getChannel().sendMessage(eb.build()).queue();
-         }else if(id.equals(event.getMember().getId())) {
-             eb.setTitle("You cannot vote for yourself.");
-             event.getChannel().sendMessage(eb.build()).queue();
-         }
 
+         } else {
+             MessageHelper.sendMessage(event.getChannel(),(president.getStatus().equals(SecretHitlerStatus.President)) ? "You cannot vote for yourself." : "You are not the president.");
+         }
     }
 }

@@ -1,6 +1,7 @@
 package Commands.SH.utils;
 
 import Commands.SH.utils.enums.RoleType;
+import lombok.Getter;
 import main.DiscordBot;
 
 import javax.imageio.ImageIO;
@@ -10,15 +11,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
+
+//TODO: REFACTOR
+@Getter
 public class Deck {
     
-    public ArrayList<Policy> deck ;
+    private final ArrayList<Policy> deck ;
     
     public Deck () {
         deck = new ArrayList<>();
     }
-
-
 
     public void createDeck () {
         BufferedImage liberal = null;
@@ -56,5 +58,9 @@ public class Deck {
 
     public Policy remove(int i) {
         return deck.remove(i);
+    }
+
+    public void reset () {
+        deck.clear();
     }
 }

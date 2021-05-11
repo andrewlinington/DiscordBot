@@ -1,9 +1,12 @@
 package main.eventListeners;
 
+import Commands.Init;
+import Commands.SH.Helper.MessageHelper;
+import Commands.SH.utils.Gamestate;
+import Commands.SH.utils.PlayerList;
 import Commands.utils.Command;
 import Commands.utils.CommandList;
-import Commands.Init;
-import main.DiscordBot;
+import main.utils.ServerGame;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -12,43 +15,75 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.*;
 import java.util.Objects;
 
+import static main.DiscordBot.BOT_ID;
+//TODO: REFACTOR
+//TODO: comment code and maybe implement rate limiting commands or the bot so it doesnt spam
 public class CommandEventListener extends ListenerAdapter {
+
+
+    private void ownerCommands(MessageReceivedEvent event, String messageContent) {
+        if(!event.isFromType(ChannelType.PRIVATE) && event.getMember().isOwner()) {
+            Command  c = new Init("!init", "");
+            if (c.keyMatches(messageContent)) c.start(event);
+        }
+    }
+
+    private void privateCommands(MessageReceivedEvent event, String messageContent) {
+        if  (event.isFromType(ChannelType.PRIVATE)) {
+            CommandList.getPrivateCommands().stream().filter(c -> c.keyMatches(messageContent)).forEach(c -> c.start(event));
+        }
+    }
+
+    private void publicCommands(MessageReceivedEvent event, String messageContent) {
+        if  (!event.isFromType(ChannelType.PRIVATE) && isGuildChannel(event) && isTextChannel(event) ) {
+            CommandList.getCommands().stream().filter(c -> c.keyMatches(messageContent)).forEach(c -> c.start(event));
+        }
+    }
+
+    private boolean isTextChannel(MessageReceivedEvent event) {
+        return ServerGame.getConfig().get(event.getGuild().getIdLong()).getBot_channel().equals(event.getTextChannel().getIdLong());
+    }
+
+    private boolean isGuildChannel(MessageReceivedEvent event) {
+        if (ServerGame.getConfig().get(event.getGuild().getIdLong()) != null) {
+            return true;
+        }
+        MessageHelper.sendMessage(event.getTextChannel(),"Owner needs to run !init on the channel");
+        return false;
+    }
+
+    private boolean isBotMessage(MessageReceivedEvent event) {
+        return !event.getMessage().isFromType(ChannelType.PRIVATE) && event.getAuthor().getIdLong() == BOT_ID
+                && !event.getMessage().getEmbeds().isEmpty() && event.getMessage().getEmbeds().get(0).getColor().equals(Color.CYAN);
+    }
+
+    private void addReaction(Long id, MessageReceivedEvent event) {
+        event.getMessage().addReaction(Objects.requireNonNull(event.getGuild().getEmoteById(id))).queue();
+    }
+
+
+    private void botResponse (MessageReceivedEvent event) {
+        if( isBotMessage(event)){
+            addReaction(ServerGame.getConfig().get(event.getGuild().getIdLong()).getYeet_emote(),event);
+            addReaction(ServerGame.getConfig().get(event.getGuild().getIdLong()).getYeetnt_emote(),event);
+        }
+    }
+
 
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         String messageContent = event.getMessage().getContentRaw();
-        if (!event.getAuthor().isBot() && messageContent.startsWith("!")) {
-
-            if(!event.isFromType(ChannelType.PRIVATE) && event.getMember().isOwner()) {
-                Command  c = new Init("!init", "");
-                if (c.keyMatches(messageContent)) {
-                    c.start(event);
-                }
-            }
-
-
-            if (!event.isFromType(ChannelType.PRIVATE) && event.getTextChannel().getIdLong() == DiscordBot.config.getBot_channel()) {
-                for (Command c : CommandList.getCommands()) {
-                    if (c.keyMatches(messageContent)) {
-                        c.start(event);
-                        return;
-                    }
-                }
-            } else if  (event.isFromType(ChannelType.PRIVATE)) {
-                for (Command c : CommandList.getPrivateCommands()) {
-                    if (c.keyMatches(messageContent)) {
-                        c.start(event);
-                        return;
-                    }
-                }
-            }
+        if(event.isFromGuild() && ServerGame.getGuildGames().get(event.getGuild()) == null ) {
+            ServerGame.getGuildGames().put(event.getGuild(), new Gamestate());
+            ServerGame.getLobby().put(event.getGuild(), new PlayerList());
         }
-
-        if(event.getAuthor().isBot() && !event.getMessage().isFromType(ChannelType.PRIVATE) && !event.getMessage().getEmbeds().isEmpty() &&
-                event.getMessage().getEmbeds().get(0).getColor() != null && event.getMessage().getEmbeds().get(0).getColor().equals(Color.CYAN) ){
-            event.getMessage().addReaction(Objects.requireNonNull(event.getGuild().getEmoteById(DiscordBot.config.getYeet_emote()))).queue();
-            event.getMessage().addReaction(Objects.requireNonNull(event.getGuild().getEmoteById(DiscordBot.config.getYeetnt_emote()))).queue();
+        if (!event.getAuthor().isBot() && messageContent.startsWith("!")) {
+            ownerCommands(event, messageContent);
+            privateCommands(event, messageContent);
+            publicCommands(event, messageContent);
+        }else if(event.getAuthor().isBot()) {
+            botResponse(event);
         }
     }
 }

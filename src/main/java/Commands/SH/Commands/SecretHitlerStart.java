@@ -1,5 +1,7 @@
 package Commands.SH.Commands;
 
+import Commands.SH.Helper.EmbededHelper;
+import Commands.SH.Helper.MessageHelper;
 import Commands.SH.utils.Gamestate;
 import Commands.SH.utils.Player;
 import Commands.SH.utils.PlayerList;
@@ -9,99 +11,90 @@ import Commands.SH.utils.enums.RoleType;
 import Commands.SH.utils.enums.SecretHitlerStatus;
 import Commands.utils.Command;
 import main.DiscordBot;
+import main.utils.ServerGame;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
+import java.util.stream.Collectors;
 
+//TODO: REFACTOR
 public class SecretHitlerStart extends Command {
-    Random rand;
+
 
     public SecretHitlerStart(String key, String desc) {
         super(key, desc);
     }
 
-
-    //TODO: clean up the start method
     @Override
     public void start(MessageReceivedEvent event) {
-        int numPlayers = PlayerList.getPlayerCount();
-        rand = new Random();
+        PlayerList pl = ServerGame.getLobby().get(event.getGuild());
+        Gamestate gs = ServerGame.getGuildGames().get(event.getGuild());
+        int numPlayers = pl.getPlayerCount();
 
-        if(!Gamestate.getGameStage().equals(GameStage.Idle)) {
-            EmbedBuilder eb = new EmbedBuilder();
-            eb.setTitle("Game has already started");
-            event.getChannel().sendMessage(eb.build()).queue();
+        if(!gs.getGameStage().equals(GameStage.Idle)) {
+            MessageHelper.sendMessage(event.getTextChannel(), "Game has already started");
             return;
         }
-
-//        if(PlayerList.getPlayerCount() < 5){
-//            EmbedBuilder eb = new EmbedBuilder();
-//            eb.setTitle("Not enough players for a round");
-//            event.getChannel().sendMessage(eb.build()).queue();
+//        if(numPlayers < 5) {
+//            MessageHelper.sendMessage(event.getTextChannel(), "Not enough players for a round");
 //            return;
 //        }
         ArrayList<Role> roles =  createRoles(numPlayers);
-        ArrayList<Player> players = PlayerList.getPlayers();
-        ArrayList<Player> fascists = new ArrayList<>();
+        //maybe remove this and use playerlist
+        ArrayList<Player> players = pl.getPlayers();
+
 
         for (int i = 0; i < numPlayers; i++){
             players.get(i).setStatus(SecretHitlerStatus.Alive);
             players.get(i).setRole(roles.get(i));
-            showRole(roles.get(i), players.get(i).getUser());
-            if(players.get(i).getRole().getPublicRole().equals("Fascist")) {
-                fascists.add(players.get(i));
-            }
+            showRole(roles.get(i), players.get(i));
         }
+        ArrayList<Player> fascists = players.stream().filter(p-> p.getRole().getPublicRole().equals("Fascist")).collect(Collectors.toCollection(ArrayList::new));
+        Random rand = new Random();
         int presidentLoc = rand.nextInt(numPlayers);
-
         players.get(presidentLoc).setStatus(SecretHitlerStatus.President);
-        Gamestate.setStart(numPlayers, players,fascists, presidentLoc);
+        ServerGame.getGuildGames().get(event.getGuild()).setStart(numPlayers, players,fascists, presidentLoc);
         showFascists(numPlayers, fascists);
-
-        SecretHitlerLobby.showLobby(event.getChannel());
         SecretHitlerLobby.requestElection(event.getTextChannel());
     }
 
+    //FIX WALLLLL
+
+
     private void showFascists(int numPlayers, ArrayList<Player> fascists) {
-        EmbedBuilder eb = new EmbedBuilder();
-        eb.setTitle("Your Team");
-        //lists all fascists
-        Gamestate.printFascists(eb);
-        for (Player p: fascists) {
-            p.getUser().openPrivateChannel().queue(privateChannel -> {
-                //shows all the fascists to everyone except hitler when players are 7 or above
-                if(!p.getRole().getSecretRole().equals("Hitler") || numPlayers < 7) {
-                    privateChannel.sendMessage(eb.build()).queue();
-                }
-            });
-        }
+        EmbedBuilder eb =  showFascists(fascists);
+        fascists.forEach(p -> sendMessage(p, numPlayers, eb));
     }
 
-    //TODO: add pictures to roll intializers  and private message channels
+    private void sendMessage (Player p , int numPlayers, EmbedBuilder eb) {
+        p.getUser().openPrivateChannel().queue(privateChannel -> {
+            //shows all the fascists to everyone except hitler when players are 7 or above
+            if(!p.getRole().getSecretRole().equals("Hitler") || numPlayers < 7) {
+                EmbededHelper.sendEmbed(privateChannel, eb,false);
+            }
+        });
+    }
+
+    private EmbedBuilder showFascists(ArrayList<Player> fascists) {
+        return EmbededHelper.createEmbeded("Your Team", Color.red, "Work with your team to elect Hitler or play 6 policy's on the Fascist Board.", PlayerList.toFascistField(fascists));
+    }
 
     /**
      * creates a private message containing the users role
      * @param role the users role
-     * @param user the player who needs a message
+     * @param player the player who needs a message
      */
-    private void showRole (Role role, User user) {
-        user.openPrivateChannel().queue(privateChannel -> {
-            EmbedBuilder eb = new EmbedBuilder();
-            eb.setTitle("Your Role");
-            eb.addField("Public Role", role.getPublicRole(), false);
-            eb.setImage("attachment://publicRole.png");
-            privateChannel.sendMessage(eb.build()).addFile(new File( DiscordBot.FILE_PATH + role.getPublicImage()),"publicRole.png").queue();
-            eb.clear();
-            eb.setTitle("Your Secret Role");
-            eb.addField("Secret Role", role.getSecretRole(), false);
-            eb.setImage("attachment://privateRole.png");
-            privateChannel.sendMessage(eb.build()).addFile(new File( DiscordBot.FILE_PATH + role.getPrivateImage()),"privateRole.png").queue();
-
+    private void showRole (Role role, Player player) {
+        player.getUser().openPrivateChannel().queue(privateChannel -> {
+            EmbedBuilder eb = EmbededHelper.createEmbededImage("Your Role", player.getPublicRoleColor(),EmbededHelper.generateField("PublicRole", role.getPublicRole()), "PublicRole.png");
+            EmbededHelper.sendEmbed(privateChannel, new File( DiscordBot.FILE_PATH + role.getPublicImage()), eb, "PublicRole.png");
+            eb = EmbededHelper.createEmbededImage("Your Secret Role", player.getSecretRoleColor(),EmbededHelper.generateField("SecretRole", role.getSecretRole()), "SecretRole.png");
+            EmbededHelper.sendEmbed(privateChannel, new File( DiscordBot.FILE_PATH + role.getPrivateImage()), eb, "SecretRole.png");
         });
     }
 
@@ -135,27 +128,25 @@ public class SecretHitlerStart extends Command {
      * @return the Roles List
      */
     private ArrayList<Role> createRoles(int numRoles) {
-        ArrayList<Role> roles = new ArrayList<>();
-        switch (numRoles) {
-            case 10:
-                roles.add(createLiberal());
-            case 9:
-                roles.add(createFascist());
-            case 8:
-                roles.add(createLiberal());
-            case 7:
-                roles.add(createFascist());
-            case 6:
-                roles.add(createLiberal());
-            default:
-                roles.add(createLiberal());
-                roles.add(createLiberal());
-                roles.add(createLiberal());
-                roles.add(createFascist());
-                roles.add(createHitler());
+        ArrayList<Role> roles = initializeRoles();
+        for (int i = 6; i <= numRoles; i++) {
+            roles.add((i % 2 == 0) ? createLiberal(): createFascist());
         }
         Collections.shuffle(roles);
         return roles;
     }
 
+    /**
+     * creates the initial list of roles
+     * @return the initial list
+     */
+    private ArrayList<Role> initializeRoles () {
+        ArrayList<Role> roles = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            roles.add(createLiberal());
+        }
+        roles.add(createFascist());
+        roles.add(createHitler());
+        return roles;
+    }
 }

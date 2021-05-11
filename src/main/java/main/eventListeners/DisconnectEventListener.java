@@ -3,7 +3,7 @@ package main.eventListeners;
 import net.dv8tion.jda.api.events.DisconnectEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
-
+//DONE FOR NOW
 public class DisconnectEventListener extends ListenerAdapter {
 
     @Override

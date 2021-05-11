@@ -6,12 +6,11 @@ import Commands.SH.utils.enums.RoleType;
  * the Role of a specific Player
  */
 public class Role {
-    //TODO: add images for secret and public roles
     private final RoleType publicRole;
     private final RoleType secretRole;
 
-    private String publicImage;
-    private String privateImage;
+    private final String publicImage;
+    private final String privateImage;
 
     /**
      * creates a new Role type
