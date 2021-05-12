@@ -6,7 +6,6 @@ import Commands.SH.utils.Player;
 import Commands.SH.utils.PlayerList;
 import Commands.SH.utils.enums.SecretHitlerStatus;
 import Commands.utils.Command;
-import main.utils.ServerGame;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 //TODO: REFACTOR
 public class SecretHitlerLeave  extends Command {
@@ -18,14 +17,14 @@ public class SecretHitlerLeave  extends Command {
     //ToDo: make sure that when a player leaves win conditions for hitler dying are checked
     @Override
     public void start(MessageReceivedEvent event) {
-        PlayerList list = ServerGame.getLobby().get(event.getGuild());
-        MessageHelper.sendMessage(event.getTextChannel(),removePlayer(list, event));
+        super.start(event);
+        MessageHelper.sendMessage(event.getTextChannel(),removePlayer(getGame().getLobby(), event));
     }
 
     private String removePlayer(PlayerList p, MessageReceivedEvent event) {
        Player player = p.removePlayer(event.getAuthor());
        if(player != null) {
-           checkPlayerRemoval(player,ServerGame.getGuildGames().get(event.getGuild()),event);
+           checkPlayerRemoval(player,getGame().getGamestate(),event);
            return player.getName() + " has left the lobby.";
        }
         return "You are not in the lobby";

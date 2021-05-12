@@ -7,7 +7,6 @@ import Commands.SH.utils.Player;
 import Commands.SH.utils.enums.GameStage;
 import Commands.SH.utils.enums.SecretHitlerStatus;
 import Commands.utils.Command;
-import main.utils.ServerGame;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
@@ -37,7 +36,8 @@ public class ShootPlayer extends Command {
 
     @Override
     public void start(MessageReceivedEvent event) {
-        Gamestate gs = ServerGame.getGuildGames().get(event.getGuild());
+        super.start(event);
+        Gamestate gs = getGame().getGamestate();
         if(!gs.getGameStage().equals(GameStage.Shoot)){
             MessageHelper.sendMessage(event.getTextChannel(), "There is no power to shoot at this time");
             return;
@@ -55,13 +55,18 @@ public class ShootPlayer extends Command {
             MessageHelper.sendMessage(event.getTextChannel(), "You are not the President.");
         } else {
             Player hopefullyHitler = gs.findPlayer(id);
+            if(hopefullyHitler == null){
+                MessageHelper.sendMessage(event.getTextChannel(), "Player is not a part of the game");
+                return;
+            }
+
             if(hopefullyHitler.getRole().getSecretRole().equals("Hitler")) {
                 EmbededHelper.sendEmbed(event.getTextChannel(), EmbededHelper.createEmbeded("You have killed " + hopefullyHitler.getName() + "!", Color.blue, "They were Hitler!"),false);
                 gs.resetGame(event.getTextChannel());
                 return;
             }
             gs.DeadCountAdd();
-            EmbededHelper.sendEmbed(event.getTextChannel(), EmbededHelper.createEmbeded("You have killed " + hopefullyHitler.getName() + "!", Color.blue),false);
+            EmbededHelper.sendEmbed(event.getTextChannel(), EmbededHelper.createEmbeded("You have killed " + hopefullyHitler.getName() + "!", Color.yellow),false);
             hopefullyHitler.setStatus(SecretHitlerStatus.Dead);
             gs.nextPres();
             gs.updateNextPres();

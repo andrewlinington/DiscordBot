@@ -2,13 +2,12 @@ package Commands;
 
 import Commands.SH.Helper.MessageHelper;
 import Commands.utils.Command;
-import Commands.utils.FileConfig;
 import com.google.gson.Gson;
 import main.DiscordBot;
+import main.utils.FileConfig;
 import main.utils.ServerGame;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Icon;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.io.File;
@@ -47,11 +46,21 @@ public class Init extends Command {
         }
     }
 
-    private void writeFileConfig (TextChannel channel) {
+    private HashMap<Long,FileConfig> createHashMap () {
+        HashMap<Long,FileConfig> fileConfigHashMap = new HashMap<>();
+        ServerGame.getGames().forEach((key,data) -> {
+            fileConfigHashMap.put(key, data.getConfig());
+        });
+        return fileConfigHashMap;
+    }
+
+
+
+    private void writeFileConfig () {
         Gson g = new Gson();
         try {
             FileWriter file = new FileWriter("config.txt");
-            file.write(g.toJson(ServerGame.getConfig()));
+            file.write(g.toJson(createHashMap()));
             file.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -59,20 +68,18 @@ public class Init extends Command {
     }
 
     private void generateFileConfig (MessageReceivedEvent event) {
-        if (ServerGame.getConfig() == null) {
-            ServerGame.setConfig( new HashMap<>());
-        }
-        FileConfig fileConfig =  (ServerGame.getConfig().containsKey(event.getGuild().getIdLong())) ? ServerGame.getConfig().get(event.getGuild().getIdLong()) : new FileConfig();
+        FileConfig fileConfig = (getGame().getConfig() == null) ? new FileConfig(): getGame().getConfig();
         fileConfig.setBot_channel(event.getTextChannel().getIdLong());
         initYeets(fileConfig,event);
-        ServerGame.getConfig().put(event.getGuild().getIdLong(),fileConfig);
+        getGame().setConfig(fileConfig);
     }
 
 
     @Override
     public void start(MessageReceivedEvent event) {
+        super.start(event);
         generateFileConfig(event);
-        writeFileConfig(event.getTextChannel());
+        writeFileConfig();
         MessageHelper.sendMessage(event.getTextChannel(), "Initialized Game on this channel");
     }
 }

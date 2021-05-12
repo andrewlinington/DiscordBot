@@ -29,7 +29,7 @@ public class PrivateHelp extends Command {
         EmbededHelper.sendEmbed(event.getPrivateChannel(), EmbededHelper.createEmbeded("Bot Commands:",Color.green,"", generateField()), true);
     }
 
-
+    //TODO: remove this help and replace with JDA Utilities object
     private ArrayList<MessageEmbed.Field> generateField () {
         ArrayList<Command> commands = CommandList.getPrivateCommands();
         ArrayList<MessageEmbed.Field> fields = new ArrayList<>();

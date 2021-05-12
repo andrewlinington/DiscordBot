@@ -169,7 +169,7 @@ public class Gamestate {
     //TODO: work on cleaning this up
     private void checkVote(MessageReactionAddEvent event) {
         if (yeet + yeetnt == playerCount - deadCount) {
-            ServerGame.getLobby().get(event.getGuild()).resetVotePlayers();
+            ServerGame.getGames().get(event.getGuild().getIdLong()).getLobby().resetVotePlayers();
             EmbedBuilder eb = new EmbedBuilder();
             if (yeetnt >= yeet) {
                 //TODO: fix eligibility
@@ -187,6 +187,7 @@ public class Gamestate {
                 SecretHitlerLobby.requestElection(event.getTextChannel());
 
             } else {
+                electionTracker = 0;
                 eb.setTitle("The vote has Passed!");
                 eb.setColor(Color.green);
                 eb.addField("Yeet:", String.valueOf(yeet), false);
@@ -221,7 +222,7 @@ public class Gamestate {
             players.get(prevPresident).setStatus(SecretHitlerStatus.Alive);
         }
         if( prevChancellor >= 0 && players.get(prevChancellor).getStatus().equals(SecretHitlerStatus.Past_Chancellor)) {
-            players.get(prevPresident).setStatus(SecretHitlerStatus.Alive);
+            players.get(prevChancellor).setStatus(SecretHitlerStatus.Alive);
         }
         if( players.get(presidentLocation).getStatus().equals(SecretHitlerStatus.President)) {
             players.get(presidentLocation).setStatus(SecretHitlerStatus.Past_President);
@@ -260,9 +261,8 @@ public class Gamestate {
 
     private void checkHitlerWin(MessageReactionAddEvent event) {
         if(players.get(chancellorLocation).getRole().getSecretRole().equals("Hitler") && board.isHitlerWin() ){
-            TextChannel channel = event.getTextChannel();
             EmbededHelper.sendEmbed(event.getTextChannel(), EmbededHelper.createEmbeded("Fascists Win!", Color.red,"Hitler has been elected."),false);
-            ServerGame.getGuildGames().get(event.getGuild()).resetGame(channel);
+            ServerGame.getGames().get(event.getGuild().getIdLong()).getGamestate().resetGame(event.getTextChannel());
         } else {
             messagePresident(event);
         }
@@ -278,7 +278,7 @@ public class Gamestate {
 
             EmbedBuilder eb = new EmbedBuilder();
             eb.setTitle("Policies have been drawn");
-            //can beadjusted later to be more dynamic in size for the initial hand
+            //can be adjusted later to be more dynamic in size for the initial hand
             for (int i = 0; i < 3; i++) {
                 if(deck.isEmpty()){
                     deck = discard;
@@ -304,6 +304,7 @@ public class Gamestate {
         if(status.equals(SecretHitlerStatus.President) && gameStage == GameStage.LegislationPres) {
             discard.discard(hand.remove(i -1));
             legislateChancellor();
+            MessageHelper.sendMessage(event.getPrivateChannel(), "Policy has been removed");
         }
         else if (status.equals(SecretHitlerStatus.Chancellor) && gameStage == GameStage.LegislationChancellor){
             board.addPolicy(hand.remove(i -1), event.getAuthor());
@@ -311,6 +312,7 @@ public class Gamestate {
             for (int j = 0; j < k; j++) {
                 discard.discard(hand.draw());
             }
+            MessageHelper.sendMessage(event.getPrivateChannel(), "Policy has been picked");
         } else {
             EmbedBuilder eb = new EmbedBuilder();
             eb.setTitle("You are not able to pick a policy at this time");
@@ -370,8 +372,7 @@ public class Gamestate {
      */
     public void resetGame (TextChannel channel) {
         EmbededHelper.sendEmbed(channel, EmbededHelper.createEmbeded("Fascists:",Color.red,"", PlayerList.toFascistField(fascists)),false);
-        PlayerList pl = ServerGame.getLobby().get(channel.getGuild());
-        pl.resetPlayers();
+        ServerGame.getGames().get(channel.getGuild().getIdLong()).getLobby().resetPlayers();
         gameStage = GameStage.Idle;
         MessageHelper.sendMessage(channel,"To play again with all players in lobby, type !start");
     }

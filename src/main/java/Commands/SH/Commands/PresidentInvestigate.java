@@ -34,7 +34,8 @@ public class PresidentInvestigate extends Command {
 
     @Override
     public void start(MessageReceivedEvent event) {
-        Gamestate gs = ServerGame.getGuildGames().get(event.getGuild());
+        super.start(event);
+        Gamestate gs = getGame().getGamestate();
         if(!gs.getGameStage().equals(GameStage.Investigate)){
             MessageHelper.sendMessage(event.getTextChannel(), "There is no power to Investigate at this time" );
             return;
@@ -52,13 +53,17 @@ public class PresidentInvestigate extends Command {
             MessageHelper.sendMessage(event.getTextChannel(), "You are not the President." );
         } else {
             Player p = gs.findPlayer(id);
+            if(p == null) {
+                MessageHelper.sendMessage(event.getTextChannel(),"Player is not in the game");
+                return;
+            }
             if(!p.userStatus().equals("Dead") && !president.equals(p)) {
                 gs.nextPres();
                 gs.updateNextPres();
                 president.getUser().openPrivateChannel().queue(privateChannel -> {
                     ArrayList<MessageEmbed.Field> fields =  new ArrayList<>();
                     fields.add(EmbededHelper.generateField("Public role for " + p.getName() +":", p.getRole().getPublicRole()));
-                   EmbededHelper.sendEmbed(event.getChannel(), EmbededHelper.createEmbeded("TOP Secret information", Color.yellow,"", fields),false);
+                   EmbededHelper.sendEmbed(privateChannel, EmbededHelper.createEmbeded("TOP Secret information", Color.yellow,"", fields),false);
                 });
                 SecretHitlerLobby.requestElection(event.getTextChannel());
             } else {

@@ -28,8 +28,8 @@ public class SecretHitlerJoin extends Command {
      */
     @Override
     public void start(MessageReceivedEvent event) {
-        User user = event.getMember().getUser();
-        addPlayer(user, event.getTextChannel());
+        super.start(event);
+        addPlayer(event.getMember().getUser(), event.getTextChannel());
     }
 
 
@@ -39,7 +39,7 @@ public class SecretHitlerJoin extends Command {
      * @param channel the channel to send a message too
      */
     private void addPlayer (User user, TextChannel channel) {
-        PlayerList players = ServerGame.getLobby().get(channel.getGuild());
+        PlayerList players = getGame().getLobby();
         if(!players.isPlayer(user) && players.getPlayerCount() < 10) {
             players.addPlayer(new Player(user));
             MessageHelper.sendMessage(channel, user.getName() + " has joined the lobby.");

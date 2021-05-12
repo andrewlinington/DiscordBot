@@ -11,7 +11,6 @@ import Commands.SH.utils.enums.RoleType;
 import Commands.SH.utils.enums.SecretHitlerStatus;
 import Commands.utils.Command;
 import main.DiscordBot;
-import main.utils.ServerGame;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -32,18 +31,19 @@ public class SecretHitlerStart extends Command {
 
     @Override
     public void start(MessageReceivedEvent event) {
-        PlayerList pl = ServerGame.getLobby().get(event.getGuild());
-        Gamestate gs = ServerGame.getGuildGames().get(event.getGuild());
+        super.start(event);
+        PlayerList pl = getGame().getLobby();
+        Gamestate gs = getGame().getGamestate();
         int numPlayers = pl.getPlayerCount();
 
         if(!gs.getGameStage().equals(GameStage.Idle)) {
             MessageHelper.sendMessage(event.getTextChannel(), "Game has already started");
             return;
         }
-//        if(numPlayers < 5) {
-//            MessageHelper.sendMessage(event.getTextChannel(), "Not enough players for a round");
-//            return;
-//        }
+        if(numPlayers < 5) {
+            MessageHelper.sendMessage(event.getTextChannel(), "Not enough players for a round");
+            return;
+        }
         ArrayList<Role> roles =  createRoles(numPlayers);
         //maybe remove this and use playerlist
         ArrayList<Player> players = pl.getPlayers();
@@ -55,10 +55,9 @@ public class SecretHitlerStart extends Command {
             showRole(roles.get(i), players.get(i));
         }
         ArrayList<Player> fascists = players.stream().filter(p-> p.getRole().getPublicRole().equals("Fascist")).collect(Collectors.toCollection(ArrayList::new));
-        Random rand = new Random();
-        int presidentLoc = rand.nextInt(numPlayers);
+        int presidentLoc = new Random().nextInt(numPlayers);
         players.get(presidentLoc).setStatus(SecretHitlerStatus.President);
-        ServerGame.getGuildGames().get(event.getGuild()).setStart(numPlayers, players,fascists, presidentLoc);
+        gs.setStart(numPlayers, players,fascists, presidentLoc);
         showFascists(numPlayers, fascists);
         SecretHitlerLobby.requestElection(event.getTextChannel());
     }

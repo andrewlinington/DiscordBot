@@ -7,8 +7,7 @@ import Commands.SH.utils.Player;
 import Commands.SH.utils.enums.GameStage;
 import Commands.SH.utils.enums.SecretHitlerStatus;
 import Commands.utils.Command;
-import Commands.utils.FileConfig;
-import main.utils.ServerGame;
+import main.utils.FileConfig;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -28,8 +27,9 @@ public class SecretHitlerElection extends Command {
 
     @Override
     public void start(MessageReceivedEvent event) {
-        FileConfig fc =   ServerGame.getConfig().get(event.getGuild().getIdLong());
-        Gamestate gs =   ServerGame.getGuildGames().get(event.getGuild());
+        super.start(event);
+        FileConfig fc =   getGame().getConfig();
+        Gamestate gs = getGame().getGamestate();
 
         Emote yeetEmote = event.getGuild().getEmoteById(fc.getYeet_emote());
         Emote yeetntEmote = event.getGuild().getEmoteById(fc.getYeetnt_emote());

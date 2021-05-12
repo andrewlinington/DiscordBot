@@ -5,7 +5,6 @@ import Commands.SH.utils.Gamestate;
 import Commands.SH.utils.PlayerList;
 import Commands.SH.utils.enums.GameStage;
 import Commands.utils.Command;
-import main.utils.ServerGame;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -23,8 +22,9 @@ public class Kick extends Command {
 
     @Override
     public void start(MessageReceivedEvent event) {
-        Gamestate gs = ServerGame.getGuildGames().get(event.getGuild());
-        PlayerList pl = ServerGame.getLobby().get(event.getGuild());
+        super.start(event);
+        Gamestate gs = getGame().getGamestate();
+        PlayerList pl = getGame().getLobby();
         if(!gs.getGameStage().equals(GameStage.Idle)){
             MessageHelper.sendMessage(event.getTextChannel(), "You cannot kick someone while the game is active.");
             return;
@@ -33,9 +33,12 @@ public class Kick extends Command {
             MessageHelper.sendMessage(event.getTextChannel(), "Usage is !kick <@user>");
             return;
         }
-
         User id = event.getMessage().getMentionedUsers().get(0);
-        MessageHelper.sendMessage(event.getTextChannel(), "Kicked " + id.getName());
-        pl.removePlayer(id);
+        if(  pl.removePlayer(id)  != null) {
+            MessageHelper.sendMessage(event.getTextChannel(), "Kicked " + id.getName());
+        } else {
+            MessageHelper.sendMessage(event.getTextChannel(), "Player is not in the given game");
+        }
+
     }
 }

@@ -1,23 +1,30 @@
 package Commands.utils;
 
+import lombok.Getter;
+import lombok.Setter;
+import main.utils.SHGame;
+import main.utils.ServerGame;
+import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.Locale;
 
-/**
- * the command for dealing with a message received event
- */
+@Getter
+@Setter
 public abstract class Command {
 
     private final String key;
-    private final String desc;
+    private final String description;
+    private SHGame game;
 
     /**
      * Generates the Command for a specific Key
      * @param key the string which is to be matched to run the command
      */
     public Command(String key, String desc) {
-        this.key = key;
-        this.desc = desc;
+        this.key = key.toLowerCase(Locale.ROOT);
+        this.description = desc;
     }
 
     /**
@@ -30,26 +37,21 @@ public abstract class Command {
     }
 
     /**
-     * Gets the Key
-     * @return the String Key
-     */
-    public String getKey () {
-        return key;
-    }
-
-    /**
-     * get the description for the help command
-     * @return the description of the command
-     */
-    public String getDescription () {
-        return desc;
-    }
-
-
-    /**
-     * Manages message received event for a given command
+     * Manages message received event for a given command and greaabs the current guild for the user
      * @param event the event that started the command
      */
-    public void start (MessageReceivedEvent event) {}
+    public void start (MessageReceivedEvent event) {
+       game =  (event.isFromType(ChannelType.PRIVATE)) ? privateCheck(event) : ServerGame.getGames().get(event.getGuild().getIdLong()) ;
+    }
+
+    /**
+     * checks if the event from a private channel was made by an active player and returns nothing otherwise
+     * @param event the private channel the message was sent in
+     * @return
+     */
+    private SHGame privateCheck (MessageReceivedEvent event) {
+        Guild g = ServerGame.findUserServer(event.getAuthor());
+        return (g != null) ? ServerGame.getGames().get(g.getIdLong()): null;
+    }
 
 }

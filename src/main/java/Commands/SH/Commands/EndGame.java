@@ -1,8 +1,8 @@
-package Commands.utils;
+package Commands.SH.Commands;
 
 import Commands.SH.Helper.MessageHelper;
 import Commands.SH.utils.Gamestate;
-import main.utils.ServerGame;
+import Commands.utils.Command;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class EndGame extends Command {
@@ -12,8 +12,9 @@ public class EndGame extends Command {
 
     @Override
     public void start(MessageReceivedEvent event) {
-        ServerGame.getGuildGames().put(event.getGuild(), new Gamestate());
-        ServerGame.getLobby().get(event.getGuild()).resetPlayers();
+        super.start(event);
+        getGame().setGamestate(new Gamestate());
+        getGame().getLobby().resetPlayers();
         MessageHelper.sendMessage(event.getTextChannel(), "Ended the current game");
     }
 }

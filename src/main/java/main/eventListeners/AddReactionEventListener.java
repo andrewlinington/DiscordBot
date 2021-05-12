@@ -5,10 +5,9 @@ import Commands.SH.utils.Gamestate;
 import Commands.SH.utils.Player;
 import Commands.SH.utils.enums.GameStage;
 import Commands.SH.utils.enums.SecretHitlerStatus;
-import Commands.utils.FileConfig;
+import main.utils.SHGame;
 import main.utils.ServerGame;
 import net.dv8tion.jda.api.entities.Emote;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
@@ -53,16 +52,14 @@ public class AddReactionEventListener extends ListenerAdapter {
     }
 
     private void checkCanRemove(MessageReactionRemoveEvent event) {
-        Guild gl = event.getGuild();
-        Gamestate game = ServerGame.getGuildGames().get(gl);
-        FileConfig config = ServerGame.getConfig().get(gl.getIdLong());
-        Player p = game.findPlayer(event.getUser().getId());
+        SHGame game = ServerGame.getGames().get(event.getGuild().getIdLong());
+        Player p = game.getGamestate().findPlayer(event.getUser().getId());
         if(p != null) {
            if(p.isFailedToVote()) {
                p.setFailedToVote(false);
-           } else if (p.isVoted()  && (game.getGameStage().equals(GameStage.Voting) || game.getGameStage().equals(GameStage.Veto))) {
-               reactionAction(config.getYeet_emote(), event.getReactionEmote().getEmote(), p, game);
-               reactionAction(config.getYeetnt_emote(), event.getReactionEmote().getEmote(), p, game);
+           } else if (p.isVoted()  && (game.getGamestate().getGameStage().equals(GameStage.Voting) || game.getGamestate().getGameStage().equals(GameStage.Veto))) {
+               reactionAction(game.getConfig().getYeet_emote(), event.getReactionEmote().getEmote(), p, game.getGamestate());
+               reactionAction(game.getConfig().getYeetnt_emote(), event.getReactionEmote().getEmote(), p, game.getGamestate());
            }
         }
     }
@@ -76,15 +73,13 @@ public class AddReactionEventListener extends ListenerAdapter {
 
     //TODO: break up into smaller parts
     private boolean voting (GameStage gs, MessageReactionAddEvent event) {
-        Guild gl = event.getGuild();
-        Gamestate game = ServerGame.getGuildGames().get(gl);
-        FileConfig config = ServerGame.getConfig().get(gl.getIdLong());
-        Player p = game.findPlayer(event.getUser().getId());
-        if(game.getGameStage().equals(gs)) {
+        SHGame game = ServerGame.getGames().get(event.getGuild().getIdLong());
+        Player p = game.getGamestate().findPlayer(event.getUser().getId());
+        if(game.getGamestate().getGameStage().equals(gs)) {
             if(p != null) {
                 if (isLegislative(gs, p) && !p.isVoted()) {
-                    boolean ifAction = reactionAction(config.getYeet_emote(), event, p, game);
-                    ifAction = ifAction || reactionAction(config.getYeetnt_emote(), event, p, game);
+                    boolean ifAction = reactionAction(game.getConfig().getYeet_emote(), event, p, game.getGamestate());
+                    ifAction = ifAction || reactionAction(game.getConfig().getYeetnt_emote(), event, p, game.getGamestate());
                     return ifAction;
                 }
                 p.setFailedToVote(true);

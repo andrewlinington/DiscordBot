@@ -30,7 +30,7 @@ public class SecretHitlerLobby extends Command {
      * @param channel the channel to share this information to
      */
     public static void requestElection(TextChannel channel) {
-        Gamestate gs = ServerGame.getGuildGames().get(channel.getGuild());
+        Gamestate gs = ServerGame.getGames().get(channel.getGuild().getIdLong()).getGamestate();
         gs.setGameStage(GameStage.Election);
         electionMessage(channel, gs);
     }
@@ -50,6 +50,7 @@ public class SecretHitlerLobby extends Command {
      */
     @Override
     public void start(MessageReceivedEvent event) {
+        super.start(event);
         showLobby(event.getTextChannel());
     }
 
@@ -57,9 +58,9 @@ public class SecretHitlerLobby extends Command {
      * shows the lobby as a list of players and their status
      * @param channel the text channel to use
      */
-    public static void showLobby (TextChannel channel) {
-        Gamestate gs = ServerGame.getGuildGames().get(channel.getGuild());
-        PlayerList pl = ServerGame.getLobby().get(channel.getGuild());
+    public void showLobby (TextChannel channel) {
+        Gamestate gs = getGame().getGamestate();
+        PlayerList pl = getGame().getLobby();
         EmbededHelper.sendEmbed(channel, EmbededHelper.createEmbeded("Secret Hitler Lobby " + pl.getPlayerCount() + "/5-10", Color.ORANGE,(GameStage.Idle == gs.getGameStage())? "Game has not started yet.": "Game has started.", PlayerList.toField(pl.getPlayers())), false);
     }
 

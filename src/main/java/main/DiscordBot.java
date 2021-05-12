@@ -1,11 +1,14 @@
 package main;
 
-import Commands.utils.FileConfig;
+import Commands.SH.utils.Gamestate;
+import Commands.SH.utils.PlayerList;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import lombok.Getter;
 import main.eventListeners.EventListeners;
+import main.utils.FileConfig;
+import main.utils.SHGame;
 import main.utils.ServerGame;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -56,7 +59,6 @@ public class DiscordBot  {
         }
     }
 
-
     /**
      * gets the token for the bot
      * @return the bot token
@@ -72,6 +74,16 @@ public class DiscordBot  {
      * @throws FileNotFoundException no file
      */
     private static void getConfig() throws FileNotFoundException {
-        ServerGame.setConfig(new Gson().fromJson(new JsonReader(new FileReader(CONFIG_FILENAME)), new TypeToken<HashMap<Long, FileConfig>>() {}.getType()));
+        HashMap<Long, FileConfig> configs = new Gson().fromJson(new JsonReader(new FileReader(CONFIG_FILENAME)), new TypeToken<HashMap<Long, FileConfig>>() {}.getType());
+        configs.forEach(DiscordBot::createConfig);
+    }
+
+    /**
+     * creates a config from a key value pair inside of the gameInfo
+     * @param key the Long Guild id for the server
+     * @param value the value of the FileConfig
+     */
+    private static void createConfig(Long key, FileConfig value) {
+        ServerGame.getGames().put(key,new SHGame(new Gamestate(),new PlayerList(), value));
     }
 }

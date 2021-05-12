@@ -49,7 +49,7 @@ public class Board {
 
     public void addPolicy (Policy p, User author) {
         Guild g = ServerGame.findUserServer(author);
-        TextChannel channel = g.getTextChannelById(ServerGame.getConfig().get(g.getIdLong()).getBot_channel());
+        TextChannel channel = g.getTextChannelById(ServerGame.getGames().get(g.getIdLong()).getConfig().getBot_channel());
         addPolicyToBoard(p, channel);
         performAction(channel, p);
     }
@@ -79,7 +79,7 @@ public class Board {
     }
 
     private boolean checkWinConditions( TextChannel channel) {
-        Gamestate gs = ServerGame.getGuildGames().get(channel.getGuild());
+        Gamestate gs = ServerGame.getGames().get(channel.getGuild().getIdLong()).getGamestate();
         if (fascist.size() == 6) {
             //Win condition
             EmbededHelper.sendEmbed(channel, EmbededHelper.createEmbeded("Fascists Win!" , Color.red,"All six fascist Policies have been played."),true);
@@ -96,7 +96,7 @@ public class Board {
     }
 
     public void doAction (TextChannel channel, Policy p) {
-        Gamestate gs = ServerGame.getGuildGames().get(channel.getGuild());
+        Gamestate gs = ServerGame.getGames().get(channel.getGuild().getIdLong()).getGamestate();
         showBoard(channel,p);
         if(checkWinConditions(channel)) {
             return;
@@ -165,6 +165,7 @@ public class Board {
 
 
     private void showFascistTrack(TextChannel channel, Policy p) {
+        //TODO: show other types of tracks for 7-8 and 9-10
         File in = new File (FILE_PATH + "temp/FascistTrack.png");
         if(!in.isFile()) {
             in = new File(FILE_PATH + "FascistTrack.png");
@@ -206,7 +207,7 @@ public class Board {
     private void  tryVeto(TextChannel channel, Policy p) {
         toPlay = p;
         EmbededHelper.sendEmbed(channel, EmbededHelper.createEmbeded("Veto the Policy?", Color.cyan),false);
-        ServerGame.getGuildGames().get(channel.getGuild()).setGameStage(GameStage.Veto);
+        ServerGame.getGames().get(channel.getGuild().getIdLong()).getGamestate().setGameStage(GameStage.Veto);
     }
 
    public Policy vetoPolicy () {

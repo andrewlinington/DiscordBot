@@ -4,9 +4,7 @@ import Commands.SH.utils.Gamestate;
 import Commands.SH.utils.enums.GameStage;
 import Commands.SH.utils.enums.SecretHitlerStatus;
 import Commands.utils.Command;
-import main.utils.ServerGame;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 
@@ -23,12 +21,12 @@ public class LegislativeVote extends Command {
 
     @Override
     public void start(MessageReceivedEvent event) {
-        Guild g = ServerGame.findUserServer(event.getAuthor());
-        if (g == null ) {
+        super.start(event);
+        if (getGame() == null ) {
             event.getPrivateChannel().sendMessage("You are not playing").queue();
             return;
         }
-        Gamestate gs = ServerGame.getGuildGames().get(g);
+        Gamestate gs = getGame().getGamestate();
         String[] s1 = event.getMessage().getContentRaw().split(" ");
         if(s1.length == 2) {
             String s = s1[1];

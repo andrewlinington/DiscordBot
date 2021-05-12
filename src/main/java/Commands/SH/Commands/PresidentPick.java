@@ -6,7 +6,6 @@ import Commands.SH.utils.Player;
 import Commands.SH.utils.enums.GameStage;
 import Commands.SH.utils.enums.SecretHitlerStatus;
 import Commands.utils.Command;
-import main.utils.ServerGame;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 //TODO: REFACTOR
@@ -28,7 +27,8 @@ public class PresidentPick extends Command {
 
     @Override
     public void start(MessageReceivedEvent event) {
-        Gamestate gs = ServerGame.getGuildGames().get(event.getGuild());
+        super.start(event);
+        Gamestate gs = getGame().getGamestate();
 
         if(!gs.getGameStage().equals(GameStage.Pick)){
             MessageHelper.sendMessage(event.getTextChannel(), "There is no power to Pick a president at this time");
