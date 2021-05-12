@@ -1,5 +1,5 @@
 config.txt
 token.txt
-**/build
+*.class
 .gradle/
 build/
