@@ -7,7 +7,6 @@ import Commands.SH.utils.Player;
 import Commands.SH.utils.enums.GameStage;
 import Commands.SH.utils.enums.SecretHitlerStatus;
 import Commands.utils.Command;
-import main.utils.ServerGame;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 

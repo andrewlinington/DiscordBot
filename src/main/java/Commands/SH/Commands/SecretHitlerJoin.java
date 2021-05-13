@@ -4,7 +4,6 @@ import Commands.SH.Helper.MessageHelper;
 import Commands.SH.utils.Player;
 import Commands.SH.utils.PlayerList;
 import Commands.utils.Command;
-import main.utils.ServerGame;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;

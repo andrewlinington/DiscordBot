@@ -12,23 +12,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
-//TODO: REFACTOR
+// TODO: REFACTOR
 public class ServerGame {
 
-    @Getter
-    @Setter
-    private static HashMap<Long, SHGame> games = new HashMap<>();
+  @Getter @Setter private static HashMap<Long, SHGame> games = new HashMap<>();
 
-    public static Guild findUserServer(User author) {
-        List<Guild> guilds = author.getMutualGuilds();
-       Optional<Guild> guild =  guilds.stream().filter(g -> checkIsLegislative(g,author)).findFirst();
-       return guild.orElse(null);
-    }
-    //TODO: change to games instead of guild games
-    private static boolean checkIsLegislative (Guild g, User author) {
-        Gamestate gs = getGames().get(g.getIdLong()).getGamestate();
-        return gs.findPlayer(author.getId()) != null  && ((gs.findPlayer(author.getId()).getStatus().equals(SecretHitlerStatus.Chancellor) && gs.getGameStage().equals(GameStage.LegislationChancellor) ) ||
-                ( gs.findPlayer(author.getId()).getStatus().equals(SecretHitlerStatus.President) && gs.getGameStage().equals(GameStage.LegislationPres)));
-    }
-
+  public static Guild findUserServer(User author) {
+    List<Guild> guilds = author.getMutualGuilds();
+    Optional<Guild> guild = guilds.stream().filter(g -> checkIsLegislative(g, author)).findFirst();
+    return guild.orElse(null);
+  }
+  // TODO: change to games instead of guild games
+  private static boolean checkIsLegislative(Guild g, User author) {
+    Gamestate gs = getGames().get(g.getIdLong()).getGamestate();
+    return gs.findPlayer(author.getId()) != null
+        && ((gs.findPlayer(author.getId()).getStatus().equals(SecretHitlerStatus.Chancellor)
+                && gs.getGameStage().equals(GameStage.LegislationChancellor))
+            || (gs.findPlayer(author.getId()).getStatus().equals(SecretHitlerStatus.President)
+                && gs.getGameStage().equals(GameStage.LegislationPres)));
+  }
 }

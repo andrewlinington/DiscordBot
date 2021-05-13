@@ -15,9 +15,9 @@ import java.util.Collections;
 //TODO: REFACTOR
 @Getter
 public class Deck {
-    
+
     private final ArrayList<Policy> deck ;
-    
+
     public Deck () {
         deck = new ArrayList<>();
     }

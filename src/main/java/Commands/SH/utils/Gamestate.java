@@ -28,11 +28,6 @@ import static main.DiscordBot.FILE_PATH;
 public class Gamestate {
 
 
-
-
-    //TODO: rejection status if rejected 3 times
-
-
     private GameStage gameStage;
 
     //TODO: pass object containing all the player types in and use that for general use

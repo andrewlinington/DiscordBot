@@ -1,20 +1,83 @@
-eventListeners/EventListeners.java
- eventListeners.EventListeners
-main/DiscordBot.java
- main.DiscordBot
+Commands/SH/Commands/SecretHitlerStart.java
+ Commands.SH.Commands.SecretHitlerStart
+main/utils/ServerGame.java
+ main.utils.ServerGame
+Commands/SH/Commands/Kick.java
+ Commands.SH.Commands.Kick
+Commands/utils/Command.java
+ Commands.utils.Command
+Commands/SH/utils/Board.java
+ Commands.SH.utils.Board
+Commands/SH/Commands/ShootPlayer.java
+ Commands.SH.Commands.ShootPlayer
+Commands/SH/Commands/LegislativeVote.java
+ Commands.SH.Commands.LegislativeVote
+Commands/SH/utils/enums/SecretHitlerStatus.java
+ Commands.SH.utils.enums.SecretHitlerStatus
+Commands/PrivateHelp.java
+ Commands.PrivateHelp
+main/eventListeners/DisconnectEventListener.java
+ main.eventListeners.DisconnectEventListener
+Commands/Init.java
+ Commands.Init
+Commands/SH/Commands/KickAll.java
+ Commands.SH.Commands.KickAll
+Commands/SH/utils/PlayerList.java
+ Commands.SH.utils.PlayerList
+Commands/SH/utils/enums/RoleType.java
+ Commands.SH.utils.enums.RoleType
+Commands/SH/utils/Deck.java
+ Commands.SH.utils.Deck
+Commands/SH/Helper/MessageHelper.java
+ Commands.SH.Helper.MessageHelper
+Commands/SH/Helper/EmbededHelper.java
+ Commands.SH.Helper.EmbededHelper
+Commands/SH/utils/Role.java
+ Commands.SH.utils.Role
+Commands/SH/utils/enums/GameStage.java
+ Commands.SH.utils.enums.GameStage
+Commands/SH/utils/Gamestate.java
+ Commands.SH.utils.Gamestate
+Commands/SH/utils/Policy.java
+ Commands.SH.utils.Policy
+Commands/utils/CommandList.java
+ Commands.utils.CommandList
+Commands/SH/Commands/EndGame.java
+ Commands.SH.Commands.EndGame
+main/utils/SHGame.java
+ main.utils.SHGame
+Commands/Rules.java
+ Commands.Rules
+Commands/SH/utils/enums/BoardType.java
+ Commands.SH.utils.enums.BoardType
+Commands/SH/Commands/PresidentInvestigate.java
+ Commands.SH.Commands.PresidentInvestigate
+Commands/SH/Commands/SecretHitlerLobby.java
+ Commands.SH.Commands.SecretHitlerLobby
+Commands/SH/utils/Player.java
+ Commands.SH.utils.Player
+Commands/SH/Commands/PresidentPick.java
+ Commands.SH.Commands.PresidentPick
+Commands/SH/Commands/SecretHitlerElection.java
+ Commands.SH.Commands.SecretHitlerElection
+main/eventListeners/AddReactionEventListener.java
+ main.eventListeners.AddReactionEventListener
+Commands/SH/utils/WinCondition.java
+ Commands.SH.utils.WinCondition
+Commands/SH/Commands/SecretHitlerLeave.java
+ Commands.SH.Commands.SecretHitlerLeave
+Commands/SH/Commands/SecretHitlerJoin.java
+ Commands.SH.Commands.SecretHitlerJoin
 Commands/Help.java
  Commands.Help
-Commands/Command.java
- Commands.Command
-Commands/SH/Player.java
- Commands.SH.Player
-Commands/SH/SecretHitlerCreate.java
- Commands.SH.SecretHitlerCreate
-eventListeners/CommandEventListener.java
- eventListeners.CommandEventListener
-Commands/CommandList.java
- Commands.CommandList
-eventListeners/DisconnectEventListener.java
- eventListeners.DisconnectEventListener
-Commands/SH/SecretHitlerLobby.java
- Commands.SH.SecretHitlerLobby
+main/utils/FileConfig.java
+ main.utils.FileConfig
+main/DiscordBot.java
+ main.DiscordBot
+ main.DiscordBot$1
+Commands/SH/Commands/Dammit.java
+ Commands.SH.Commands.Dammit
+main/eventListeners/EventListeners.java
+ main.eventListeners.EventListeners
+main/eventListeners/CommandEventListener.java
+ main.eventListeners.CommandEventListener
