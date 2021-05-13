@@ -1,5 +1,4 @@
-config.txt
-token.txt
-.gradle\
-build\
+*.txt
+/build/
 /.gradle/
+/src/main/java/main/res/temp/
