@@ -234,7 +234,7 @@ public class Board {
     private void showTrack (TextChannel channel, Policy p, String roleType) {
         String filePath = FILE_PATH + "temp/" + roleType + "Track" + channel.getGuild().getId() + ".png";
         EmbededHelper.sendEmbed(channel,  updateBoard(filePath, getBoardFile(filePath,roleType), p, roleType),
-                EmbededHelper.createEmbededImage(roleType,((roleType.equals("Liberal"))? Color.BLUE:Color.red),"attachment://" +roleType + ".png"),roleType + ".png");
+                EmbededHelper.createEmbededImage(roleType,((roleType.equals("Liberal"))? Color.BLUE:Color.red), roleType + ".png"),roleType + ".png");
     }
 
     /**
