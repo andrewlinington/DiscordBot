@@ -5,7 +5,6 @@ import Commands.SH.utils.PlayerList;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
-import lombok.Getter;
 import main.eventListeners.EventListeners;
 import main.utils.FileConfig;
 import main.utils.SHGame;
@@ -19,24 +18,25 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import javax.security.auth.login.LoginException;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-// TODO: REFACTOR
-// TODO: better system for managing files not in this main
-@Getter
+/**
+ * @version 1.0
+ */
 public class DiscordBot {
   private static final String CONFIG_FILENAME = "config.txt";
   private static final Logger logger = LogManager.getLogger(DiscordBot.class);
   public static Long BOT_ID;
   public static JDA API;
-  public static final String FILE_PATH = "src/main/java/main/res/";
+  public static final String FILE_PATH = "src/res/";
 
   /**
    * runs the entire bot
@@ -49,19 +49,29 @@ public class DiscordBot {
     List<GatewayIntent> gatewayIntents = new ArrayList<>();
     gatewayIntents.add(GatewayIntent.GUILD_MEMBERS);
     try {
-      API =
-          JDABuilder.createDefault(getToken())
-              .setActivity(Activity.playing("!help"))
-              .enableIntents(gatewayIntents)
-              .setMemberCachePolicy(MemberCachePolicy.ALL)
-              .build();
-      API.addEventListener(EventListeners.ALL.toArray());
-      getConfig();
-      BOT_ID = API.getSelfUser().getIdLong();
+      startBot(gatewayIntents);
     } catch (Exception e) {
       System.out.println("Failed to launch Bot");
       e.printStackTrace();
     }
+  }
+
+  /**
+   * Logs into the current bot with the correct credentials
+   * @param gatewayIntents the Intents used by this bot
+   * @throws IOException if the user does not have a token file
+   * @throws LoginException if the user does not have the correct token
+   */
+  private static void startBot (List<GatewayIntent> gatewayIntents) throws IOException, LoginException {
+    API =
+            JDABuilder.createDefault(getToken())
+                    .setActivity(Activity.playing("!help"))
+                    .enableIntents(gatewayIntents)
+                    .setMemberCachePolicy(MemberCachePolicy.ALL)
+                    .build();
+    API.addEventListener(EventListeners.ALL.toArray());
+    getConfig();
+    BOT_ID = API.getSelfUser().getIdLong();
   }
 
   /**
@@ -71,7 +81,7 @@ public class DiscordBot {
    * @throws FileNotFoundException no token available
    */
   private static String getToken() throws IOException {
-    return Files.readString(Path.of("token.txt"));
+    return Files.lines(Paths.get("token.txt")).findFirst().orElse(null);
   }
 
   /**
@@ -85,6 +95,7 @@ public class DiscordBot {
             .fromJson(
                 new JsonReader(new FileReader(CONFIG_FILENAME)),
                 new TypeToken<HashMap<Long, FileConfig>>() {}.getType());
+    if(configs == null) configs = new HashMap<>();
     configs.forEach(DiscordBot::createConfig);
   }
 

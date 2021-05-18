@@ -2,7 +2,9 @@ package main.utils;
 
 import lombok.Getter;
 import lombok.Setter;
-
+/**
+ * @version 1.0
+ */
 @Getter
 @Setter
 public class FileConfig {

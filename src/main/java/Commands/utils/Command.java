@@ -41,13 +41,13 @@ public abstract class Command {
      * @param event the event that started the command
      */
     public void start (MessageReceivedEvent event) {
-       game =  (event.isFromType(ChannelType.PRIVATE)) ? privateCheck(event) : ServerGame.getGames().get(event.getGuild().getIdLong()) ;
+        game =  (event.isFromType(ChannelType.PRIVATE)) ? privateCheck(event) : ServerGame.getGames().get(event.getGuild().getIdLong());
     }
 
     /**
      * checks if the event from a private channel was made by an active player and returns nothing otherwise
      * @param event the private channel the message was sent in
-     * @return
+     * @return the SHGame associated with the user of the private channel
      */
     private SHGame privateCheck (MessageReceivedEvent event) {
         Guild g = ServerGame.findUserServer(event.getAuthor());

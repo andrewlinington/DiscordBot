@@ -101,7 +101,7 @@ public class Gamestate {
         this.fascists = fascists;
         this.players = players;
         playerCount = numPlayers;
-        this.board = new Board(numPlayers);
+        this.board = new Board(numPlayers, this );
     }
 
 
@@ -206,9 +206,29 @@ public class Gamestate {
             electionTracker = 0;
             MessageHelper.sendMessage(event.getTextChannel(), "Election ticker has reached Third Position!!! The country is thrown into chaos and a policy is played");
             board.addForcedPolicy(deck.draw(), event.getTextChannel());
+            clearAllRoles();
         } else {
             MessageHelper.sendMessage(event.getTextChannel(), "Election Ticker is in the " + (((electionTracker == 1) ? "first" : "second") + " position"));
         }
+    }
+
+    private void clearAllRoles() {
+        if( prevPresident >= 0 && players.get(prevPresident).getStatus().equals(SecretHitlerStatus.Past_President)) {
+            players.get(prevPresident).setStatus(SecretHitlerStatus.Alive);
+        }
+        if( prevChancellor >= 0 && players.get(prevChancellor).getStatus().equals(SecretHitlerStatus.Past_Chancellor)) {
+            players.get(prevChancellor).setStatus(SecretHitlerStatus.Alive);
+        }
+        if( players.get(presidentLocation).getStatus().equals(SecretHitlerStatus.President)) {
+            players.get(presidentLocation).setStatus(SecretHitlerStatus.Alive);
+        }
+        if( chancellorLocation >= 0 && players.get(chancellorLocation).getStatus().equals(SecretHitlerStatus.Chancellor)) {
+            players.get(chancellorLocation).setStatus(SecretHitlerStatus.Alive);
+        }
+        changePres();
+        prevPresident = -1;
+        prevChancellor = -1;
+        chancellorLocation = -1;
     }
 
     //TODO: clean code
@@ -225,9 +245,9 @@ public class Gamestate {
         if( chancellorLocation >= 0 && players.get(chancellorLocation).getStatus().equals(SecretHitlerStatus.Chancellor)) {
             players.get(chancellorLocation).setStatus(SecretHitlerStatus.Past_Chancellor);
         }
+        changePres();
         prevPresident = presidentLocation;
         prevChancellor = chancellorLocation;
-        changePres();
     }
 
 
@@ -376,6 +396,7 @@ public class Gamestate {
     public void onVeto( MessageReactionAddEvent event) {
 
         if(yeet + yeetnt == 2) {
+            ServerGame.getGames().get(event.getGuild().getIdLong()).getLobby().resetVotePlayers();
             Policy p = board.vetoPolicy();
             EmbedBuilder eb = new EmbedBuilder();
             if(yeet == 2) {

@@ -58,7 +58,7 @@ public class SecretHitlerElection extends Command {
              } else if (chancellor.getStatus().equals(SecretHitlerStatus.Past_Chancellor) || (chancellor.getStatus().equals(SecretHitlerStatus.Past_President) && gs.getPlayerCount() > 5)) {
                  MessageHelper.sendMessage(event.getChannel(), "Player cannot be from previous legislation");
              } else {
-                 EmbededHelper.sendEmbed(event.getTextChannel(), EmbededHelper.createEmbeded("The President has chosen a Chancellor!", Color.CYAN, "Please vote " + yeetEmote.getAsMention() + " or " + yeetntEmote.getAsMention()), false);
+                 EmbededHelper.sendEmbedQueue(event.getTextChannel(), EmbededHelper.createEmbeded("The President has chosen a Chancellor!", Color.CYAN, "Please vote " + yeetEmote.getAsMention() + " or " + yeetntEmote.getAsMention()), yeetEmote, yeetntEmote);
                  gs.setGameStage(GameStage.Voting);
                  chancellor.setStatus(SecretHitlerStatus.Chancellor);
                  gs.setChancellorLocation(gs.getPlayers().indexOf(chancellor));

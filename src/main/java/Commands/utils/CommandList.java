@@ -45,7 +45,7 @@ public final class CommandList {
         commands.add(new PresidentPick("!pick", "Picks the next president" ));
         commands.add(new PresidentInvestigate("!info", "Locates the players public role"));
         commands.add(new Rules("!rules", "Da Rules"));
-        commands.add(new KickAll("!kickAll", "Kick all players"));
+        commands.add(new KickAll("!clearLobby", "Kick all players"));
         commands.add(new Kick("!kick", "Kicks a given player from an inactive lobby"));
         commands.add(new EndGame("!end", "Ends the active game"));
     }
