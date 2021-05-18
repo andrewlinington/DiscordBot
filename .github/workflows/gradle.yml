@@ -38,7 +38,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: jar
-        path: ${JAR_PATH}
+        path: "$JAR_PATH"
       
   deploy:
     needs: build_and_test
