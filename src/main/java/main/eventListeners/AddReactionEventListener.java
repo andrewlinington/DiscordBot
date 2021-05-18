@@ -55,19 +55,12 @@ public class AddReactionEventListener extends ListenerAdapter {
     if (p != null) {
       if (p.isFailedToVote()) {
         p.setFailedToVote(false);
-      } else if (p.isVoted()
-          && (game.getGamestate().getGameStage().equals(GameStage.Voting)
+      } else if (p.isVoted() && (game.getGamestate().getGameStage().equals(GameStage.Voting)
               || game.getGamestate().getGameStage().equals(GameStage.Veto))) {
-        reactionAction(
-            game.getConfig().getYeet_emote(),
-            event.getReactionEmote().getEmote(),
-            p,
-            game.getGamestate());
-        reactionAction(
-            game.getConfig().getYeetnt_emote(),
-            event.getReactionEmote().getEmote(),
-            p,
-            game.getGamestate());
+        reactionAction(game.getConfig().getYeet_emote(),
+            event.getReactionEmote().getEmote(), p, game.getGamestate());
+        reactionAction(game.getConfig().getYeetnt_emote(),
+            event.getReactionEmote().getEmote(), p, game.getGamestate());
       }
     }
   }

@@ -6,7 +6,9 @@ import Commands.SH.utils.enums.BoardType;
 import Commands.SH.utils.enums.GameStage;
 import lombok.Getter;
 import lombok.Setter;
+import main.utils.FileConfig;
 import main.utils.ServerGame;
+import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -28,20 +30,31 @@ import static main.DiscordBot.FILE_PATH;
 @Setter
 public class Board {
 
-    //Maybe give this function a game to work off of
+    //Maybe give this function code the gamestate its from and the channel it takes place in
+
+    private final Gamestate gamestate;
+//    private final TextChannel channel;
+
+
 
     private final ArrayList<Policy> fascist;
+    private boolean isVeto = false;
     private final ArrayList<Policy> liberal;
 
-    private ArrayList<WinCondition> winConditions;
+    private ArrayList<Conditions> winConditions;
+    private ArrayList<Conditions> actionConditions;
+
+
+
     private final BoardType type;
 
     private Policy toPlay;
 
-    //TODO: pass in the game
-    public Board (int numPlayers) {
+    public Board(int numPlayers, Gamestate gamestate) {
+        this.gamestate = gamestate;
         type = setBoardType(numPlayers);
         setWinConditions();
+        setActionConditions();
         fascist = new ArrayList<>();
         liberal = new ArrayList<>();
     }
@@ -56,13 +69,26 @@ public class Board {
     }
 
     /**
-     * Allows for dynamic winConditions to be added
+     * Allows for dynamic conditions to be added for victory when a policy is played
      */
-    private void setWinConditions () {
+    private void setWinConditions() {
         winConditions = new ArrayList<>();
         winConditions.add(this::checkLiberalWin);
         winConditions.add(this::checkFascistWin);
     }
+
+    /**
+     * Creates all the actions that can happen in one list
+     * should overwrite this if needing to add custom actions on the board for fascists
+     */
+    private void setActionConditions() {
+        actionConditions = new ArrayList<>();
+        actionConditions.add(this::bulletCheck);
+        actionConditions.add(this::investegationCheck);
+        actionConditions.add(this::specialElectionCheck);
+        actionConditions.add(this::policyPeekCheck);
+    }
+
 
 
     public void addPolicy (Policy p, User author) {
@@ -82,13 +108,19 @@ public class Board {
     }
 
     private void performAction(TextChannel channel, Policy p) {
-        if(fascist.size() == 5){
+        if(isVeto){
             tryVeto(channel, p);
         } else {
             doAction(channel, p);
         }
     }
 
+
+    /**
+     * Adds a forced policy to the given channel
+     * @param p the policy
+     * @param channel the channel
+     */
     public void addForcedPolicy (Policy p, TextChannel channel) {
         addPolicyToBoard(p, channel);
         showBoard(channel,p);
@@ -101,21 +133,19 @@ public class Board {
      * @return if the game ended
      */
     private boolean checkWinConditions( TextChannel channel) {
-        Gamestate gs = ServerGame.getGames().get(channel.getGuild().getIdLong()).getGamestate();
-        return winConditions.stream().filter((w) -> w.canWin(channel,gs)).findFirst().orElse(null) != null;
+        return winConditions.stream().filter((w) -> w.occurs(channel)).findFirst().orElse(null) != null;
     }
 
     /**
      * The win condition for Fascists with Policies
      * @param channel the channel to send a message too
-     * @param gs the game state
      * @return if the game ended
      */
-    private boolean checkFascistWin(TextChannel channel, Gamestate gs) {
+    private boolean checkFascistWin(TextChannel channel) {
         if (fascist.size() == 6) {
             //Win condition
             EmbededHelper.sendEmbed(channel, EmbededHelper.createEmbeded("Fascists Win!" , Color.red,"All six fascist Policies have been played."),true);
-            gs.resetGame(channel);
+            gamestate.resetGame(channel);
             return true;
         }
         return false;
@@ -124,47 +154,61 @@ public class Board {
     /**
      * The win condition for Liberals with Policies
      * @param channel the channel to send a message too
-     * @param gs the game state
      * @return if the game ended
      */
-    private boolean checkLiberalWin (TextChannel channel, Gamestate gs) {
+    private boolean checkLiberalWin (TextChannel channel) {
         if (liberal.size() == 5) {
             EmbededHelper.sendEmbed(channel, EmbededHelper.createEmbeded("Liberals Win!", Color.BLUE, "All five liberal Policies have been played."),true);
-            gs.resetGame(channel);
+            gamestate.resetGame(channel);
             return true;
         }
         return false;
     }
 
+    /**
+     * Implements the action and shows the given board state
+     * @param channel the channel to send information to
+     * @param p the policy that was played
+     */
     public void doAction (TextChannel channel, Policy p) {
-        Gamestate gs = ServerGame.getGames().get(channel.getGuild().getIdLong()).getGamestate();
         showBoard(channel,p);
-        if(!(checkWinConditions(channel) || executiveAction(p ,gs ,channel))) {
-            gs.nextPres();
-            gs.updateNextPres();
+        isVeto = fascist.size() >= 5; //TODO make this check be based off the positions of the policies and the boards be the same
+        actions(channel, p);
+    }
+
+    /**
+     * Performs any actions applied based on the policy that was played
+     * @param channel the channel the actions will occur on
+     * @param p the policy played
+     */
+    private void actions (TextChannel channel, Policy p) {
+        if(!(checkWinConditions(channel) || executiveAction(p ,channel))) {
+            gamestate.nextPres();
+            gamestate.updateNextPres();
             SecretHitlerLobby.requestElection(channel);
         }
     }
 
-
-    private boolean executiveAction (Policy p, Gamestate gs, TextChannel channel) {
-        if(p.getRole().equals("Fascist")) {
-            return investegationCheck(gs,channel) || bulletCheck(gs, channel) || specialElectionCheck(gs, channel) || policyPeekCheck(gs,channel) ;
-        }
-        return false;
+    /**
+     * Is there an action that occurs with the given policies? if so then it will occur here
+     * @param p the policy being played
+     * @param channel the channel to send a message to
+     * @return true if there was an executive action halting the movement of presidents
+     */
+    private boolean executiveAction (Policy p, TextChannel channel) {
+        return  p.getRole().equals("Fascist") && actionConditions.stream().filter((w) -> w.occurs(channel)).findFirst().orElse(null) != null;
     }
 
     /**
      * checks if a policy can be peeked
-     * @param gs the gamestate
      * @param channel the channel to use
      * @return if the action occurred
      */
-    private  boolean policyPeekCheck (Gamestate gs, TextChannel channel) {
+    private  boolean policyPeekCheck ( TextChannel channel) {
         if (BoardType.SMALL == type && fascist.size() == 3) {
             EmbededHelper.sendEmbed(channel, EmbededHelper.createEmbeded("The President gets to see the next 3 Policy's" , Color.green),true);
-            gs.getPlayers().get(gs.getPresidentLocation()).getUser().openPrivateChannel().queue(privateChannel -> {
-                EmbededHelper.sendEmbed(privateChannel, EmbededHelper.createEmbeded("Top three Policies" , Color.yellow,"", gs.peekThree() ),true);
+            gamestate.getPlayers().get(gamestate.getPresidentLocation()).getUser().openPrivateChannel().queue(privateChannel -> {
+                EmbededHelper.sendEmbed(privateChannel, EmbededHelper.createEmbeded("Top three Policies" , Color.yellow,"", gamestate.peekThree() ),true);
             });
         }
         return false;
@@ -172,13 +216,12 @@ public class Board {
 
     /**
      * checks for a special Election
-     * @param gs the game state
      * @param channel the channel the game takes place in
      * @return true if the action occurred otherwise false
      */
-    private  boolean specialElectionCheck (Gamestate gs, TextChannel channel) {
+    private  boolean specialElectionCheck (TextChannel channel) {
         if ((BoardType.MED == type || BoardType.LARGE == type) && fascist.size() == 3) {
-            gs.setGameStage(GameStage.Pick);
+            gamestate.setGameStage(GameStage.Pick);
             EmbededHelper.sendEmbed(channel, EmbededHelper.createEmbeded("The President must choose the next president" ,Color.green , "use !pick <@name>"),false);
             return true;
         }
@@ -187,13 +230,12 @@ public class Board {
 
     /**
      * checks if a bullet can be played
-     * @param gs the current game
      * @param channel the current channel
      * @return
      */
-    private boolean bulletCheck (Gamestate gs, TextChannel channel) {
+    private boolean bulletCheck ( TextChannel channel) {
         if (fascist.size() == 4 || fascist.size() == 5) {
-            gs.setGameStage(GameStage.Shoot);
+            gamestate.setGameStage(GameStage.Shoot);
             EmbededHelper.sendEmbed(channel, EmbededHelper.createEmbeded("The President must choose who to shoot" ,Color.green , "use !shoot <@name> to kill someone"),false);
             return true;
         }
@@ -202,13 +244,12 @@ public class Board {
 
     /**
      * Checks if an investigation can occur
-     * @param gs the gamestate
      * @param channel the channel that the message is to be sent to
      * @return the investigation
      */
-    private boolean investegationCheck (Gamestate gs, TextChannel channel) {
+    private boolean investegationCheck ( TextChannel channel) {
         if ((BoardType.MED == type && fascist.size() == 2) || (BoardType.LARGE == type && (fascist.size() == 2 || fascist.size() == 1))) {
-            gs.setGameStage(GameStage.Investigate);
+            gamestate.setGameStage(GameStage.Investigate);
             EmbededHelper.sendEmbed(channel, EmbededHelper.createEmbeded("The President must choose who to investigate" ,Color.green , "use !info <@name> to investigate someone"),false);
             return true;
         }
@@ -328,15 +369,26 @@ public class Board {
         return fascist.size() >= 3;
     }
 
-
-    //TODO: give adjustment
+    //TODO: give adjustment based on JDA Utilities and split up
+    /**
+     * Allows for a user to attempt to veto a given policy
+     * @param channel the channel to be sent to
+     * @param p the policy
+     */
     private void  tryVeto(TextChannel channel, Policy p) {
+        FileConfig fc = ServerGame.getGames().get(channel.getGuild().getIdLong()).getConfig();
+        Emote yeet =  channel.getGuild().getEmoteById(fc.getYeet_emote());
+        Emote yeetnt =  channel.getGuild().getEmoteById(fc.getYeetnt_emote());
         toPlay = p;
-        EmbededHelper.sendEmbed(channel, EmbededHelper.createEmbeded("Veto the Policy?", Color.cyan),false);
-        ServerGame.getGames().get(channel.getGuild().getIdLong()).getGamestate().setGameStage(GameStage.Veto);
+        EmbededHelper.sendEmbedQueue(channel, EmbededHelper.createEmbeded("Veto the Policy?", Color.cyan), yeet, yeetnt);
+        gamestate.setGameStage(GameStage.Veto);
     }
 
-    //TODO: give adjustment
+    //TODO: give adjustment to allow for custom policies
+    /**
+     * vetos the given policy
+     * @return the veto'd policy
+     */
    public Policy vetoPolicy () {
         if(toPlay.getRole().equals("Fascist")){
             fascist.remove(toPlay);

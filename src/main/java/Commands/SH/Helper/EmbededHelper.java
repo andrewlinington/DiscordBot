@@ -1,8 +1,10 @@
 package Commands.SH.Helper;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed.Field;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.awt.*;
 import java.io.File;
@@ -14,7 +16,6 @@ public class EmbededHelper {
     public static EmbedBuilder createEmbeded (String title, Color color) {
         return new EmbedBuilder().setTitle(title).setColor(color);
     }
-
 
     public static EmbedBuilder createEmbeded (String title,Color color, String desc) {
         return createEmbeded(title, color).setDescription(desc);
@@ -33,8 +34,6 @@ public class EmbededHelper {
         return createEmbeded(title,color).addField(field).setImage("attachment://" + image);
     }
 
-
-
     public static void sendEmbed (MessageChannel channel, File f, EmbedBuilder eb, String loc) {
         MessageHelper.sendEmbededMessage(channel, eb, f, loc);
         eb.clear();
@@ -47,7 +46,6 @@ public class EmbededHelper {
         }
     }
 
-
     private static void addField(Field f, EmbedBuilder eb) {
         eb.addField(f);
     }
@@ -56,6 +54,10 @@ public class EmbededHelper {
         return new Field(name, value,false);
     }
 
-
-
+    public static void sendEmbedQueue(TextChannel textChannel, EmbedBuilder embeded, Emote yeet, Emote yeetnt) {
+        textChannel.sendMessage(embeded.build()).queue((message) -> {
+            message.addReaction(yeet).queue();
+            message.addReaction(yeetnt).queue();
+        });
+    }
 }
