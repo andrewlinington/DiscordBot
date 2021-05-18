@@ -53,7 +53,7 @@ jobs:
       run: |- 
         gcloud compute ssh "$GCE_INSTANCE" \
             --zone="$GCE_INSTANCE_ZONE" \
-            --command="ls -R && tmux kill-session -t bot"
+            --command="cd .. && ls -R"
     - name: retrieve build artifacts
       uses: actions/download-artifact@v2
       with:
