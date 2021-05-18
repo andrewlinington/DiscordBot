@@ -38,7 +38,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: jar
-        path: JAR_PATH
+        path: ${JAR_PATH}
       
   deploy:
     needs: build_and_test
@@ -51,10 +51,10 @@ jobs:
         service_account_key: ${{ secrets.GCE_SA_KEY }}
         project_id: ${{ secrets.GCE_PROJECT }}
     - name: clean up cloud files
-      run: |- 
-        gcloud compute ssh "$GCE_INSTANCE" \
-            --zone="$GCE_INSTANCE_ZONE" \
-            --command="cd .. && cd andrewlinington9/ && tmux ls && sudo rm discord_bot-1.0-SNAPSHOT-all.jar &&  tmux kill-session -t bot"
+#       run: |- 
+#         gcloud compute ssh "$GCE_INSTANCE" \
+#             --zone="$GCE_INSTANCE_ZONE" \
+#             --command="cd .. && cd andrewlinington9/" && tmux ls && sudo rm discord_bot-1.0-SNAPSHOT-all.jar &&  tmux kill-session -t bot
     - name: retrieve build artifacts
       uses: actions/download-artifact@v2
       with:
