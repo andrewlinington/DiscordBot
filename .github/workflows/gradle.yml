@@ -66,5 +66,5 @@ jobs:
       run: |- 
           gcloud compute ssh "$GCE_INSTANCE" \
             --zone="$GCE_INSTANCE_ZONE" \
-            --command="cd .. && cd andrewlinington9/ && tmux new -s myname && java -jar discord_bot-1.0-SNAPSHOT-all.jar"
+            --command="cd .. && cd andrewlinington9/ && tmux new -s bot && java -jar discord_bot-1.0-SNAPSHOT-all.jar"
     
