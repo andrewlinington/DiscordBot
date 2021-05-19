@@ -59,9 +59,12 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: jar
+    - name: list files
+      run: |-
+        ls -R
     - name: upload cloud files
       run: |-
-        gcloud compute scp "$JAR_PATH" "$BOT_NAME"
+        gcloud compute scp discord_bot-1.0-SNAPSHOT-all.jar "$BOT_NAME":~
     - name: Deploy new JAR
       run: |- 
           gcloud compute ssh "$GCE_INSTANCE" \
