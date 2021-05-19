@@ -54,7 +54,7 @@ jobs:
       run: |- 
         gcloud compute ssh "$GCE_INSTANCE" \
             --zone="$GCE_INSTANCE_ZONE" \
-            --command="cd ../andrewlinington9/" && tmux -S /tmp/socket ls && sudo rm discord_bot-1.0-SNAPSHOT-all.jar && tmux -S /tmp/socket kill-session -t bot
+            --command="groups && cd ../andrewlinington9/" && tmux -S /tmp/socket ls && sudo rm discord_bot-1.0-SNAPSHOT-all.jar && tmux -S /tmp/socket kill-session -t bot
     - name: retrieve build artifacts
       uses: actions/download-artifact@v2
       with:
