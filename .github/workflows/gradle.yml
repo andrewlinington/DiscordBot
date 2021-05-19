@@ -54,14 +54,11 @@ jobs:
       run: |- 
         gcloud compute ssh "$GCE_INSTANCE" \
             --zone="$GCE_INSTANCE_ZONE" \
-            --command="cd ../andrewlinington9/" && sudo tmux ls && sudo rm discord_bot-1.0-SNAPSHOT-all.jar && sudo tmux kill-session -t bot
+            --command="cd ../andrewlinington9/" && tmux -S /tmp/socket ls && sudo rm discord_bot-1.0-SNAPSHOT-all.jar && tmux -S /tmp/socket kill-session -t bot
     - name: retrieve build artifacts
       uses: actions/download-artifact@v2
       with:
         name: jar
-    - name: list files
-      run: |-
-        ls -R
     - name: upload cloud files
       run: |-
         gcloud compute scp ~/work/DiscordBot/DiscordBot/discord_bot-1.0-SNAPSHOT-all.jar bot-new:~ --zone "$GCE_INSTANCE_ZONE"
@@ -69,5 +66,5 @@ jobs:
       run: |- 
           gcloud compute ssh "$GCE_INSTANCE" \
             --zone="$GCE_INSTANCE_ZONE" \
-            --command="sudo mv discord_bot-1.0-SNAPSHOT-all.jar ../andrewlinington9/ && cd ../andrewlinington9/ && sudo tmux new -s bot -d && sudo tmux send-keys -t 'sudo java -jar discord_bot-1.0-SNAPSHOT-all.jar'"
+            --command="sudo mv discord_bot-1.0-SNAPSHOT-all.jar ../andrewlinington9/ && cd ../andrewlinington9/ && tmux -S /tmp/socket new -s bot -d && tmux -S /tmp/socket send-keys -t 'sudo java -jar discord_bot-1.0-SNAPSHOT-all.jar'"
     
