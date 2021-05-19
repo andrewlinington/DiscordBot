@@ -64,7 +64,7 @@ jobs:
         ls -R
     - name: upload cloud files
       run: |-
-        gcloud compute scp ~/discord_bot-1.0-SNAPSHOT-all.jar bot_new:~ --zone "$GCE_INSTANCE_ZONE"
+        gcloud compute scp ~/discord_bot-1.0-SNAPSHOT-all.jar bot-new:~ --zone "$GCE_INSTANCE_ZONE"
     - name: Deploy new JAR
       run: |- 
           gcloud compute ssh "$GCE_INSTANCE" \
