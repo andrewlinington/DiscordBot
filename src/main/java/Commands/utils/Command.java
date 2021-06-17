@@ -10,6 +10,9 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Locale;
 
+/**
+ * @version 1.1
+ */
 @Getter
 @Setter
 public abstract class Command {
@@ -33,7 +36,7 @@ public abstract class Command {
      * @return if the string is equivalent
      */
     public boolean keyMatches(String string) {
-        return string.equals(getKey());
+        return string.equals(key);
     }
 
     /**
@@ -41,8 +44,17 @@ public abstract class Command {
      * @param event the event that started the command
      */
     public void start (MessageReceivedEvent event) {
+        setSHGame(event);
+    }
+
+    /**
+     * Finds the SHGame and returns it
+     * @param event the current channel
+     */
+    public void setSHGame(MessageReceivedEvent event) {
         game =  (event.isFromType(ChannelType.PRIVATE)) ? privateCheck(event) : ServerGame.getGames().get(event.getGuild().getIdLong());
     }
+
 
     /**
      * checks if the event from a private channel was made by an active player and returns nothing otherwise

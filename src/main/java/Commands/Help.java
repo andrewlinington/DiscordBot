@@ -35,7 +35,7 @@ public class Help extends Command {
 
     private ArrayList<MessageEmbed.Field> generateCommandFields () {
         ArrayList<MessageEmbed.Field> fields = new ArrayList<>();
-        for (Command c: CommandList.getCommands()) {
+    for (Command c : CommandList.getInstance().getCommands()) {
             fields.add(EmbededHelper.generateField(c.getKey(), c.getDescription()));
         }
         return fields;

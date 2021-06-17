@@ -1,34 +1,26 @@
 package Commands.SH.utils;
 
 import Commands.SH.utils.enums.RoleType;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /**
- * the Role of a specific Player
+ * @version 1.1
  */
+@Getter
+@AllArgsConstructor
 public class Role {
     private final RoleType publicRole;
     private final RoleType secretRole;
 
     private final String publicImage;
-    private final String privateImage;
-
-    /**
-     * creates a new Role type
-     * @param role the public role
-     * @param secretRole the private/secret role
-     */
-    public Role(RoleType role, RoleType secretRole, String publicImage, String privateImage) {
-        this.publicRole = role;
-        this.secretRole = secretRole;
-        this.privateImage = privateImage;
-        this.publicImage = publicImage;
-    }
+    private final String secretImage;
 
     /**
      * Acquires the public role of a player
      * @return the public role as a string
      */
-    public String getPublicRole () {
+    public String getPublicRoleName() {
         return publicRole.name();
     }
 
@@ -36,16 +28,9 @@ public class Role {
      * Acquires the private role of a player
      * @return the private role as a string
      */
-    public String getSecretRole () {
+    public String getSecretRoleName() {
          return secretRole.name();
     }
 
-    public String getPublicImage() {
-        return publicImage;
-    }
-
-    public String getPrivateImage() {
-        return privateImage;
-    }
 
 }

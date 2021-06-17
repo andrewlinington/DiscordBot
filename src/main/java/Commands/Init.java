@@ -20,7 +20,7 @@ public class Init extends Command {
     /**
      * Generates the Command for a specific Key
      * @param key  the string which is to be matched to run the command
-     * @param desc
+     * @param desc the description of the command
      */
     public Init(String key, String desc) {
         super(key, desc);
@@ -67,7 +67,7 @@ public class Init extends Command {
         }
     }
 
-    private void generateFileConfig (MessageReceivedEvent event) {
+    private void generateFileConfig (MessageReceivedEvent event) throws NullPointerException {
         FileConfig fileConfig = (getGame().getConfig() == null) ? new FileConfig(): getGame().getConfig();
         fileConfig.setBot_channel(event.getTextChannel().getIdLong());
         initYeets(fileConfig,event);
@@ -76,7 +76,7 @@ public class Init extends Command {
 
 
     @Override
-    public void start(MessageReceivedEvent event) {
+    public void start(MessageReceivedEvent event) throws NullPointerException{
         super.start(event);
         generateFileConfig(event);
         writeFileConfig();

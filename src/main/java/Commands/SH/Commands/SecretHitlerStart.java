@@ -40,10 +40,10 @@ public class SecretHitlerStart extends Command {
             MessageHelper.sendMessage(event.getTextChannel(), "Game has already started");
             return;
         }
-        if(numPlayers < 5) {
-            MessageHelper.sendMessage(event.getTextChannel(), "Not enough players for a round");
-            return;
-        }
+//        if(numPlayers < 5) {
+//            MessageHelper.sendMessage(event.getTextChannel(), "Not enough players for a round");
+//            return;
+//        }
         ArrayList<Role> roles =  createRoles(numPlayers);
         //maybe remove this and use playerlist
         ArrayList<Player> players = pl.getPlayers();
@@ -54,7 +54,7 @@ public class SecretHitlerStart extends Command {
             players.get(i).setRole(roles.get(i));
             showRole(roles.get(i), players.get(i));
         }
-        ArrayList<Player> fascists = players.stream().filter(p-> p.getRole().getPublicRole().equals("Fascist")).collect(Collectors.toCollection(ArrayList::new));
+        ArrayList<Player> fascists = players.stream().filter(p-> p.getRole().getPublicRoleName().equals("Fascist")).collect(Collectors.toCollection(ArrayList::new));
         int presidentLoc = new Random().nextInt(numPlayers);
         players.get(presidentLoc).setStatus(SecretHitlerStatus.President);
         gs.setStart(numPlayers, players,fascists, presidentLoc);
@@ -73,7 +73,7 @@ public class SecretHitlerStart extends Command {
     private void sendMessage (Player p , int numPlayers, EmbedBuilder eb) {
         p.getUser().openPrivateChannel().queue(privateChannel -> {
             //shows all the fascists to everyone except hitler when players are 7 or above
-            if(!p.getRole().getSecretRole().equals("Hitler") || numPlayers < 7) {
+            if(!p.getRole().getSecretRoleName().equals("Hitler") || numPlayers < 7) {
                 EmbededHelper.sendEmbed(privateChannel, eb,false);
             }
         });
@@ -90,10 +90,10 @@ public class SecretHitlerStart extends Command {
      */
     private void showRole (Role role, Player player) {
         player.getUser().openPrivateChannel().queue(privateChannel -> {
-            EmbedBuilder eb = EmbededHelper.createEmbededImage("Your Role", player.getPublicRoleColor(),EmbededHelper.generateField("PublicRole", role.getPublicRole()), "PublicRole.png");
+            EmbedBuilder eb = EmbededHelper.createEmbededImage("Your Role", player.getPublicRoleColor(),EmbededHelper.generateField("PublicRole", role.getPublicRoleName()), "PublicRole.png");
             EmbededHelper.sendEmbed(privateChannel, new File( DiscordBot.FILE_PATH + role.getPublicImage()), eb, "PublicRole.png");
-            eb = EmbededHelper.createEmbededImage("Your Secret Role", player.getSecretRoleColor(),EmbededHelper.generateField("SecretRole", role.getSecretRole()), "SecretRole.png");
-            EmbededHelper.sendEmbed(privateChannel, new File( DiscordBot.FILE_PATH + role.getPrivateImage()), eb, "SecretRole.png");
+            eb = EmbededHelper.createEmbededImage("Your Secret Role", player.getSecretRoleColor(),EmbededHelper.generateField("SecretRole", role.getSecretRoleName()), "SecretRole.png");
+            EmbededHelper.sendEmbed(privateChannel, new File( DiscordBot.FILE_PATH + role.getSecretImage()), eb, "SecretRole.png");
         });
     }
 

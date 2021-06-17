@@ -60,4 +60,7 @@ public class EmbededHelper {
             message.addReaction(yeetnt).queue();
         });
     }
+
+    public static <T> void sendEmbed(T any, T any1) {
+    }
 }

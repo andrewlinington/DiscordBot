@@ -60,7 +60,7 @@ public class ShootPlayer extends Command {
                 return;
             }
 
-            if(hopefullyHitler.getRole().getSecretRole().equals("Hitler")) {
+            if(hopefullyHitler.getRole().getSecretRoleName().equals("Hitler")) {
                 EmbededHelper.sendEmbed(event.getTextChannel(), EmbededHelper.createEmbeded("You have killed " + hopefullyHitler.getName() + "!", Color.blue, "They were Hitler!"),false);
                 gs.resetGame(event.getTextChannel());
                 return;

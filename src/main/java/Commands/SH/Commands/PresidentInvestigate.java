@@ -61,7 +61,7 @@ public class PresidentInvestigate extends Command {
                 gs.updateNextPres();
                 president.getUser().openPrivateChannel().queue(privateChannel -> {
                     ArrayList<MessageEmbed.Field> fields =  new ArrayList<>();
-                    fields.add(EmbededHelper.generateField("Public role for " + p.getName() +":", p.getRole().getPublicRole()));
+                    fields.add(EmbededHelper.generateField("Public role for " + p.getName() +":", p.getRole().getPublicRoleName()));
                    EmbededHelper.sendEmbed(privateChannel, EmbededHelper.createEmbeded("TOP Secret information", Color.yellow,"", fields),false);
                 });
                 SecretHitlerLobby.requestElection(event.getTextChannel());
