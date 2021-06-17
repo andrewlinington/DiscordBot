@@ -31,7 +31,7 @@ public class SecretHitlerLeave  extends Command {
     }
 
     private void checkPlayerRemoval(Player p, Gamestate gs, MessageReceivedEvent event) {
-        if( p.getRole() != null && p.getRole().getSecretRole().equals("Hitler")){
+        if( p.getRole() != null && p.getRole().getSecretRoleName().equals("Hitler")){
             MessageHelper.sendMessage(event.getTextChannel(),"Hitler has left. Game restarting");
             gs.resetGame(event.getTextChannel());
         } else if ( p.getStatus().equals(SecretHitlerStatus.President) || p.getStatus().equals(SecretHitlerStatus.Chancellor) ) {

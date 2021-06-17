@@ -77,7 +77,7 @@ public class Player {
      * @return the role color
      */
     public Color getPublicRoleColor () {
-        if(role.getPublicRole().equals("Fascist")) {
+        if(role.getPublicRoleName().equals("Fascist")) {
             return Color.RED;
         } else {
             return  Color.BLUE;
@@ -90,7 +90,7 @@ public class Player {
      * @return the role color
      */
     public Color getSecretRoleColor() {
-        if(role.getSecretRole().equals("Fascist") || role.getSecretRole().equals("Hitler")) {
+        if(role.getSecretRoleName().equals("Fascist") || role.getSecretRoleName().equals("Hitler")) {
             return Color.RED;
         } else {
             return  Color.BLUE;

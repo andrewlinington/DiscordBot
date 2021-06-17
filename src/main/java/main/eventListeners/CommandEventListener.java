@@ -41,7 +41,7 @@ public class CommandEventListener extends ListenerAdapter {
    */
   private void privateCommands(MessageReceivedEvent event, String messageContent) {
     if (event.isFromType(ChannelType.PRIVATE)) {
-      CommandList.getPrivateCommands().stream()
+      CommandList.getInstance().getPrivateCommands().stream()
           .filter(c -> c.keyMatches(messageContent.toLowerCase(Locale.ROOT)))
           .forEach(c -> c.start(event));
     }
@@ -54,7 +54,7 @@ public class CommandEventListener extends ListenerAdapter {
    */
   private void publicCommands(MessageReceivedEvent event, String messageContent) {
     if (!event.isFromType(ChannelType.PRIVATE) && isGuildChannel(event) && isTextChannel(event)) {
-      CommandList.getCommands().stream()
+      CommandList.getInstance().getCommands().stream()
           .filter(c -> c.keyMatches(messageContent.toLowerCase(Locale.ROOT)))
           .forEach(c -> c.start(event));
     }

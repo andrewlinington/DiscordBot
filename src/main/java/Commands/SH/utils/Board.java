@@ -99,12 +99,12 @@ public class Board {
     }
 
     private void addPolicyToBoard(Policy p, TextChannel channel) {
-        if(p.getRole().equals("Fascist")){
+        if(p.getRoleName().equals("Fascist")){
             fascist.add(p);
         } else {
             liberal.add(p);
         }
-        EmbededHelper.sendEmbed(channel ,  EmbededHelper.createEmbeded("Policy added: " + p.getRole(), ((p.getRole().equals("Fascist")) ? Color.red :Color.BLUE)),false);
+        EmbededHelper.sendEmbed(channel ,  EmbededHelper.createEmbeded("Policy added: " + p.getRoleName(), ((p.getRoleName().equals("Fascist")) ? Color.red :Color.BLUE)),false);
     }
 
     private void performAction(TextChannel channel, Policy p) {
@@ -196,7 +196,7 @@ public class Board {
      * @return true if there was an executive action halting the movement of presidents
      */
     private boolean executiveAction (Policy p, TextChannel channel) {
-        return  p.getRole().equals("Fascist") && actionConditions.stream().filter((w) -> w.occurs(channel)).findFirst().orElse(null) != null;
+        return  p.getRoleName().equals("Fascist") && actionConditions.stream().filter((w) -> w.occurs(channel)).findFirst().orElse(null) != null;
     }
 
     /**
@@ -287,7 +287,7 @@ public class Board {
      * @return the completed policy track
      */
     private File updateBoard (String filePath, File in, Policy p, String roleType) {
-        if(p.getRole().equals(roleType)) {
+        if(p.getRoleName().equals(roleType)) {
             try {
                 ImageIO.write(generateCombinedBoard(in, p),"PNG", new File (filePath));
                 in = new File (filePath);
@@ -309,7 +309,7 @@ public class Board {
         BufferedImage b = ImageIO.read(in);
         Graphics2D g = b.createGraphics();
         g.drawImage(b, 0, 0, null);
-        g.drawImage(p.getImage(), getXDist(p), ((p.getRole().equals("Liberal")) ? 89 : 63), null);
+        g.drawImage(p.getImage(), getXDist(p), ((p.getRoleName().equals("Liberal")) ? 89 : 63), null);
         g.dispose();
         return b;
     }
@@ -334,7 +334,7 @@ public class Board {
      * @return the location
      */
     private int getXDist(Policy p) {
-        return (p.getRole().equals("Liberal")) ? getXDistLiberal(): getXDistFascist() ;
+        return (p.getRoleName().equals("Liberal")) ? getXDistLiberal(): getXDistFascist() ;
     }
 
     /**
@@ -390,7 +390,7 @@ public class Board {
      * @return the veto'd policy
      */
    public Policy vetoPolicy () {
-        if(toPlay.getRole().equals("Fascist")){
+        if(toPlay.getRoleName().equals("Fascist")){
             fascist.remove(toPlay);
         } else {
             liberal.remove(toPlay);

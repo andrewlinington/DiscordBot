@@ -12,11 +12,9 @@ import java.util.ArrayList;
  */
 public final class CommandList {
 
-    private static final ArrayList<Command> commands;
+    private static CommandList  c = null;
 
-    private static final ArrayList<Command> privateCommands;
-
-    static {
+    private CommandList() {
         commands = new ArrayList<>();
         privateCommands = new ArrayList<>();
         addAllCommands();
@@ -24,9 +22,24 @@ public final class CommandList {
     }
 
     /**
+     * Singleton class for CommandList
+     * @return the singleton
+     */
+    public static CommandList getInstance() {
+        if(c == null) {
+            c = new CommandList();
+        }
+        return c;
+    }
+
+    private final ArrayList<Command> commands;
+
+    private final ArrayList<Command> privateCommands;
+
+    /**
      * generates a list of private commands
      */
-    private static void addAllPrivateCommands() {
+    private void addAllPrivateCommands() {
         privateCommands.add(new PrivateHelp("!help", "Call for help" ));
         privateCommands.add(new LegislativeVote("!policy", "PresidentPick a Policy" ));
     }
@@ -34,7 +47,7 @@ public final class CommandList {
     /**
      * generates all the public channel commands
      */
-    private static void addAllCommands() {
+    private void addAllCommands() {
         commands.add(new Help("!help","Call for help"));
         commands.add(new SecretHitlerJoin("!join","Join the Lobby"));
         commands.add(new SecretHitlerLeave("!leave","Leave the Lobby"));
@@ -54,7 +67,7 @@ public final class CommandList {
      * gets all the public commands
      * @return public commands
      */
-    public static ArrayList<Command> getCommands() {
+    public ArrayList<Command> getCommands() {
         return commands;
     }
 
@@ -62,7 +75,7 @@ public final class CommandList {
      * gets all the private commands
      * @return public commands
      */
-    public static ArrayList<Command> getPrivateCommands() {
+    public ArrayList<Command> getPrivateCommands() {
         return privateCommands;
     }
 }

@@ -51,7 +51,7 @@ public final class PlayerList {
     }
     public static  ArrayList<MessageEmbed.Field> toFascistField (ArrayList<Player> playerList) {
         ArrayList<MessageEmbed.Field> fields = new ArrayList<>();
-        playerList.forEach(p -> fields.add(EmbededHelper.generateField(p.getName(),p.getRole().getSecretRole())));
+        playerList.forEach(p -> fields.add(EmbededHelper.generateField(p.getName(),p.getRole().getSecretRoleName())));
         return fields;
     }
 

@@ -245,9 +245,10 @@ public class Gamestate {
         if( chancellorLocation >= 0 && players.get(chancellorLocation).getStatus().equals(SecretHitlerStatus.Chancellor)) {
             players.get(chancellorLocation).setStatus(SecretHitlerStatus.Past_Chancellor);
         }
-        changePres();
+
         prevPresident = presidentLocation;
         prevChancellor = chancellorLocation;
+        changePres();
     }
 
 
@@ -275,7 +276,7 @@ public class Gamestate {
 
 
     private void checkHitlerWin(MessageReactionAddEvent event) {
-        if(players.get(chancellorLocation).getRole().getSecretRole().equals("Hitler") && board.isHitlerWin() ){
+        if(players.get(chancellorLocation).getRole().getSecretRoleName().equals("Hitler") && board.isHitlerWin() ){
             EmbededHelper.sendEmbed(event.getTextChannel(), EmbededHelper.createEmbeded("Fascists Win!", Color.red,"Hitler has been elected."),false);
             ServerGame.getGames().get(event.getGuild().getIdLong()).getGamestate().resetGame(event.getTextChannel());
         } else {
@@ -301,7 +302,7 @@ public class Gamestate {
                     discard = new Deck();
                 }
                 Policy p = deck.draw();
-                String type = p.getRole();
+                String type = p.getRoleName();
                 eb.addField("Policy " + (i + 1), type , false);
                 hand.discard(p);
             }
@@ -342,7 +343,7 @@ public class Gamestate {
             eb.setTitle("Your Policy's");
             eb.setColor(Color.ORANGE);
             for (int i = 0; i < getHandSize(); i++) {
-                eb.addField("Policy "  + (i + 1), hand.getDeck().get(i).getRole(), false);
+                eb.addField("Policy "  + (i + 1), hand.getDeck().get(i).getRoleName(), false);
             }
             gameStage = GameStage.LegislationChancellor;
             eb.setDescription("Please select a policy to play using !policy <#>");
@@ -364,7 +365,7 @@ public class Gamestate {
         ArrayList<Policy> policyList = deck.peek();
         ArrayList<MessageEmbed.Field> fields = new ArrayList<>();
         for (int i = 0; i < 3 ; i++) {
-            fields.add(EmbededHelper.generateField("Policy ", policyList.get(i).getRole()));
+            fields.add(EmbededHelper.generateField("Policy ", policyList.get(i).getRoleName()));
         }
         return fields;
 
@@ -403,7 +404,7 @@ public class Gamestate {
                 //election ticker
                 electionTracker++;
                 electionTrackerCheck(event);
-                eb.setTitle("Veto'd the " + p.getRole() + " policy");
+                eb.setTitle("Veto'd the " + p.getRoleName() + " policy");
                 discard.discard(p);
     //TODO: fix this to diff func call
                 nextPres();
